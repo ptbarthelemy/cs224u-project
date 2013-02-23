@@ -1,32 +1,64 @@
 import sys
 import re
 from os.path import isfile
-from os import listdir
+from os import listdir, remove
 from gensim import corpora, models, similarities
 
-STOPWORDS = ['for', 'a', 'of', 'the', 'and', 'to', 'in']
+STOPWORDS = set(['for', 'a', 'of', 'the', 'and', 'to', 'in', 
+	'i', 'is', 'it', 'you', 'we', 'that', 'this', 's', 'as',
+	'but', 'not', 'so', 'my', 'your'])
 
-def commentFiles(dirname):
+def getFilesOf(dirname):
 	return [dirname + f for f in listdir(dirname) if isfile(dirname + f)]
+
+def getWordlist(filenames):
+	wordlist = set()
+	for filename in filenames:
+		f = open(filename)
+		for line in f.readlines():
+			wordlist.add(line.split(",")[0].lower())
+		f.close()
+	return wordlist
+
+def cleanComments(text):
+	return re.sub(r"\* \[ \!\[share on facebook\].*[pa]m\)", "", text)
 
 def extractComments(filenames):
 	print "Reading files..."
 	comments = []
-	numFilesSeen = 0
 	for filename in filenames:
-		# numFilesSeen += 1
-		# if numFilesSeen > 100:
-		# 	return comments # DEBUG
-
 		f = open(filename)
-		comments.extend(re.findall(r"Commenter:[\w ]+\|\|\|  (.*)  \|\|\| likes", f.read()))
+		# treat each comment as one document
+		text = f.read().lower()
+		text = cleanComments(text)
+		comments.extend(re.findall(r"commenter:[\w ]+\|\|\|  (.*)  \|\|\| likes", text))
+
+		# # treat all comments for one poem as one document
+		# addComment = ""
+		# text = f.read()
+		# text = cleanComments(text)
+		# for comment in re.findall(r"Commenter:[\w ]+\|\|\|  (.*)  \|\|\| likes", text):
+		# 	addComment += comment
+		# print ">>>NEW COMMENT: ", addComment[:200]
+		# comments.append(addComment)
+
 		f.close()
 	return comments
 
-def tokenize(documents):
+	# # use poems instead
+	# result = []
+	# for filename in getFilesOf("../data/extracted_poems/"):
+	# 	f = open(filename)
+	# 	text = f.read().lower()
+	# 	result.append(text)
+	# 	f.close()
+	# return result
+
+def tokenize(documents, wordlist=set()):
 	# remove stop words (optional?)
 	print "Cleaning comments..."
-	texts = [[word.lower() for word in re.findall("[A-Za-z]+", document) if word not in STOPWORDS]
+	texts = [[word for word in re.findall("[A-Za-z]+", document)
+		if word not in STOPWORDS and (word in wordlist or len(wordlist) == 0)]
 		for document in documents]
 
 	# remove words that appear only once
@@ -36,7 +68,6 @@ def tokenize(documents):
 	for t in all_tokens:
 		counts[t] = counts.get(t, 0) + 1
 	tokens_once = set(t for t in counts.keys() if counts.get(t) == 1)
-	# tokens_once = set(word for word in set(all_tokens) if all_tokens.count(word) == 1)
 	texts = [[word for word in text if word not in tokens_once]
 		for text in texts]
 
@@ -50,6 +81,9 @@ def createVSM(documents, dictionaryFilename, corpusFilename):
 	corpus = [dictionary.doc2bow(document) for document in documents]
 
 	# save for later use
+	remove(dictionaryFilename)
+	remove(corpusFilename)
+	remove(corpusFilename + ".index")
 	dictionary.save(dictionaryFilename)
 	corpora.MmCorpus.serialize(corpusFilename, corpus)
 
@@ -59,37 +93,42 @@ def createVSM(documents, dictionaryFilename, corpusFilename):
 if __name__ == '__main__':
 	# parameters
 	inputDir = "../data/extracted_comments/"
+	wordlistDir = "../data/wordlists/"
 	dictionaryFilename = "dictionary.dict"
 	modelFilename = "model.lda"
 	corpusFilename = "corpus.mm"
-	numTopics = 10
+	numTopics = 5
+	numPasses = 20
+	reloadVSM = False
 	reloadModel = True #False
 	useTfidf = True
+	useWordlist = False
 
 	# extract comments if necessary
-	if isfile(dictionaryFilename) and isfile(corpusFilename):
-		print "Loading dictionary and corpus from file."
+	if isfile(dictionaryFilename) and isfile(corpusFilename) and not reloadVSM:
+		print "Loading dictionary and corpus from file..."
 		dictionary = corpora.Dictionary.load(dictionaryFilename)
 		corpus = corpora.MmCorpus(corpusFilename)
 	else:
 		print "No files located. Creating dictionary and corpus..."
-		# print "Comment files", commentFiles(inputDir)
-		documents = tokenize(extractComments(commentFiles(inputDir)))
+		wordlist = set()
+		if useWordlist:
+			wordlist = getWordlist(getFilesOf(wordlistDir))
+		documents = tokenize(extractComments(getFilesOf(inputDir)), wordlist)
 		dictionary, corpus = createVSM(documents, dictionaryFilename, corpusFilename)
 		reloadModel = True
-	print "Loaded",dictionary, corpus
 
 	# generate model using tfidf
 	if reloadModel or not isfile(modelFilename):
-		print "Creating LDA model..."
+		print "Generating LDA model with", numPasses, "iterations..."
 		if useTfidf:
-			tfidf = models.TfidfModel(corpus)
-			corpus_tfidf = tfidf[corpus]
-			lda = models.ldamodel.LdaModel(corpus=corpus_tfidf, id2word=dictionary,
-				num_topics=numTopics) #, update_every=1, chunksize=1000, passes=5)
+			tfidf = models.TfidfModel(corpus, normalize=True)
+			tfidf_corpus = tfidf[corpus]
+			lda = models.ldamodel.LdaModel(corpus=tfidf_corpus, id2word=dictionary,
+				num_topics=numTopics, passes=numPasses)
 		else:
 			lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary,
-				num_topics=numTopics) #, update_every=1, chunksize=1000, passes=5)
+				num_topics=numTopics, passes=numPasses)
 		lda.save(modelFilename)
 	else:
 		print "Loading LDA model..."
