@@ -20,6 +20,11 @@ STOPWORDS = set(['a','about','above','after','again','against','all','am','an',
 	'where','which','while','who','whom','why','with','would','you','your',
 	'yours','yourself','yourselves'])
 
+"""
+NOTE:
+ - checkout Bing Liu's lexicon
+"""
+
 def getFilesOf(dirname):
 	return [dirname + f for f in listdir(dirname) if isfile(dirname + f)]
 
@@ -33,6 +38,8 @@ def getWordlist(filenames):
 	return wordlist
 
 def cleanComments(text):
+	# note, to grep for comments, use:
+	# grep -Pe "\|\|\|[^\|]*\|\|\| likes" * -o | sed -E "s/\|\|\|  (.*)  \|\|\| likes/\1/g"
 	return re.sub(r"\* \[ \!\[share on facebook\].*[pa]m\)", "", text)
 
 def extractComments(filenames, commentAsDocument=True):
@@ -80,8 +87,11 @@ def tokenize(documents, wordlist=set()):
 	counts = {}
 	for t in all_tokens:
 		counts[t] = counts.get(t, 0) + 1
-	tokens_once = set(t for t in counts.keys() if counts.get(t) == 1)
-	texts = [[word for word in text if word not in tokens_once]
+	upperThreshold = sorted(counts.values())[-20]
+
+	# note: only use upperThreshold if the wordlist is defined
+	texts = [[word for word in text if counts[word] > 1 and \
+		(counts[word] < upperThreshold or len(wordlist) == 0)]
 		for text in texts]
 
 	return texts
@@ -111,10 +121,10 @@ if __name__ == '__main__':
 	modelFilename = "model.lda"
 	corpusFilename = "corpus.mm"
 
-	numTopics = 5
-	numPasses = 20
-	useWordlist = False
-	commentAsDocument = True
+	numTopics = 20
+	numPasses = 200
+	useWordlist = True
+	commentAsDocument = False
 	useTfidf = True
 
 	reloadVSM = False

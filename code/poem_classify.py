@@ -36,7 +36,7 @@ negs = set(['no','not','never','wont','cant'])
 '''
 
 
-lex = open('NRC-lexicon.txt')
+lex = open('../data/NRC-lexicon.txt')
 lex_dict = {}
 for l in lex:
     if l.split()[0] not in lex_dict:
