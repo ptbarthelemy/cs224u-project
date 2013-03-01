@@ -1,6 +1,6 @@
 # classifies poems against labels from comments, runs 10-fold cross-validation with a maxent classifier
 # usage: python classify.py [poem_dir] [comments_dir]
-# 'NRC-lexicon.txt' must be in the working directory
+# 'NRC-lexicon.txt' must be in the right directory (currently '../data/')
 
 import sys, os, nltk, itertools, string
 import numpy as np
