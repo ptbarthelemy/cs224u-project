@@ -1,12 +1,11 @@
 #!/usr/bin/python
+# coding: utf-8
 
 import re
 
 def removeNonLetters(line):
   return re.sub(r'[\s\W]+', ' ', line)
     
-
-
 def removeTags(decapLine):
   decapLine = ' ' + decapLine + ' '
   decapLine = re.sub(' em ', ' ', decapLine).strip()
@@ -22,24 +21,45 @@ def tokenize(line):
   return line.split()
 
 def formatString(line):
-    line = re.sub('\.', ' . ', line)
-    line = re.sub('\"', ' \'\' ', line)
-    line = re.sub(',' , ' , ', line)
-    line = re.sub('!' , ' ! ', line)
-    line = re.sub(';' , ' ; ', line)
-    line = re.sub('\(', ' ( ', line)
-    line = re.sub('\)', ' ) ', line)
-    line = re.sub(':', ' : ', line)
-    line = re.sub('\?', ' ? ', line)
-    line = re.sub('n\'t', ' n\'t', line)
-    line = re.sub('\'s ', ' \'s ', line)
-    line = re.sub('\'re ', ' \'re ', line)
-    line = re.sub('\'d ', ' \'d ', line)
-    line = re.sub('\'ve ', ' \'ve ', line)
+#     line = re.sub('\.', ' . ', line)
+#     line = re.sub('\"', ' \'\' ', line)
+#     line = re.sub(',' , ' , ', line)
+#     line = re.sub('!' , ' ! ', line)
+#     line = re.sub(';' , ' ; ', line)
+#     line = re.sub('\(', ' ( ', line)
+#     line = re.sub('\)', ' ) ', line)
+#     line = re.sub(':', ' : ', line)
+#     line = re.sub('\?', ' ? ', line)
+#     line = re.sub('n\'t', ' n\'t', line)
+#     line = re.sub('\'s ', ' \'s ', line)
+#     line = re.sub('\'re ', ' \'re ', line)
+#     line = re.sub('\'d ', ' \'d ', line)
+#     line = re.sub('\'ve ', ' \'ve ', line)
     line = re.sub(r'\s+', ' ', line)
     line = re.sub('\. \. \.', '...', line)
     line = re.sub('\.\.\. \.', '...', line)
+    line = re.sub('(")(.*?")', '``'+'\\2', line)    # ``
+    line = re.sub('(``.*?)(")', '\\1'+'\'\'', line) # ''
+#     line = re.sub('\"', '\'\'', line)             # ''
+#     line = re.sub('(".*?)(")', '\\1'+'\'\'', line)
     return line.strip()
+
+def cleanNonAsciiString(line):
+  cp1252_replac = {
+    "\x85": '...' , # …
+    "\x91": '\''  , # ‘
+    "\x92": '\''  , # ’
+    "\x93": '\'\'', # “
+    "\x94": '\'\'', # ”
+    "\x97": '--'  ,  # —
+    #"["   : '('   ,
+    #"]"   : ')'   ,
+    #"\n" : '', # new line
+    "`": '\'' # `
+  }
+  for c, u in cp1252_replac.items():
+    line = line.replace(c, u)
+  return line
 
 def stripString(line):
     line = re.sub('\.', ' . ', line)
