@@ -2,10 +2,16 @@
 # usage: python classify.py [poem_dir] [comments_dir]
 # 'NRC-lexicon.txt' must be in the right directory (currently '../data/')
 
-import sys, os, nltk, itertools, string
+import sys, os, nltk, itertools, string, random
+from kl import kldiv
 import numpy as np
+from nltk.classify import maxent
 from collections import defaultdict
 from operator import itemgetter
+from extract_poem_features import PoemModel
+
+# prior code for iterating through classifiers
+'''
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -25,15 +31,11 @@ classifiers = [
     MultinomialNB(),
     BernoulliNB(),
     LogisticRegression()]
+'''
+
 
 # maps categories to indices (i.e. dimensions) so we can use real-valued features
 cats = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
-
-# these were dicts for a kinda weird negation thing i was trying out
-'''
-opposites = {'anger' : 'trust','trust': 'anger', 'anticipation': 'fear', 'fear': 'anticipation', 'joy': 'sadness', 'sadness': 'joy', 'surprise': 'disgust', 'disgust': 'surprise'}
-negs = set(['no','not','never','wont','cant'])
-'''
 
 
 lex = open('../data/NRC-lexicon.txt')
@@ -45,8 +47,11 @@ for l in lex:
         lex_dict[l.split()[0]].add(l.split()[1])
 
 def get_label(comments):
-    # this function gets the label from a comments file, current implementation just adds up the 
-    mc_c = defaultdict(int)
+    # this function gets the label(s) from a comments file
+    # current implementation represents this as a list where emotional values are scaled to 100
+    # and for a given featureset (poem) the classifier is trained on 100 examples using this
+    # distribution of labels
+    counts = [0]*8
     for cl in comments:
         #neg = False
         for w in cl.split('|||')[1].split():
@@ -54,23 +59,21 @@ def get_label(comments):
             if s in lex_dict:
                 for key in lex_dict[s]:
                     if key != 'positive' and key != 'negative':
-                        #if neg:
-                            #mc_c[opposites[key]] += 1
-                            #print 'negged: ', w
-                        #else:
-                        mc_c[key] += 1
-            #elif s in negs:
-                #neg = True
-            #for ch in string.punctuation:
-                #if ch in w.lower():
-                    #neg = False
-    if len(mc_c) > 0: label = cats.index(max(mc_c.iteritems(), key = itemgetter(1))[0])
-    else: label = -1
+                        counts[cats.index(key)]+=1
+
+    if all(x == 0 for x in counts):
+        return 'empty'
+    
+    # scale to 100 and make sure there are exactly 100 examples
+    # if deficient randomly remove/add something that already exists in the counts
+    label = [float(i)/sum(counts) for i in counts]
+
     return label
+                
+    
 
 def doc_features(poem):
-    featureset = []
-    emo_words = defaultdict(int)
+    featureset = defaultdict(int)
     total_words = 0.0
     for pl in poem:
         for w in pl.split():
@@ -78,86 +81,82 @@ def doc_features(poem):
             if s in lex_dict:
                 for key in lex_dict[s]:
                     if key != 'positive' and key != 'negative':
-                        emo_words[key] += 1
+                        featureset[key] += 1
                         total_words += 1.0
-    for key in cats:
-        if key in emo_words:
-            featureset.append(emo_words[key]/total_words)
-        else:
-            featureset.append(0.0)
-    #print featureset
     return featureset
 
-def evaluate(classifier, test):
-    c = 0
-    w = 0
-    for sample in test:
-        #print sample[1], classifier.classify(sample[0])
-        if sample[1] == classifier.classify(sample[0]):
-            c += 1
-        else:
-            w += 1
-    return c/(c+w)
-
-def ten_fold(data, classifier):
+def ten_fold(data):
     results = []
-    cd = defaultdict(int)
-    wd = defaultdict(int)
-
-    for i in xrange(10):
+    
+    for iteration in xrange(10):
         train_set, test_set, train_labels, test_labels=[],[],[],[]
-        start = i*(len(data)/10)
+        start = iteration*(len(data)/10)
         end = start + (len(data)/10)
+
+        # scale label to 100
+
+        joint_features = []
         for i, item in enumerate(data):
             if i >= start and i < end:
                 test_set.append(item[0])
                 test_labels.append(item[1])
-            else:
-                train_set.append(item[0])
-                train_labels.append(item[1])
+            else: #
+                # normalize label to 100 w ints for training examples
+                label = [int(x*100) for x in item[1]]
+                while sum(label) != 100:
+                    rand = random.randint(0,7)
+                    if sum(label) < 100:
+                        if item[1][rand] > 0.0:
+                            label[rand]+=1
+                    elif sum(label) > 100:
+                        if label[rand] > 0:
+                            label[rand]-=1
 
-        train = np.array(train_set)
-        labels = np.array(train_labels)
-        classifier.fit(train,labels)
+                for j, count in enumerate(label):
+                    for k in xrange(count):
+                        train_set.append(item[0])
+                        train_labels.append(cats[j])
+                        joint_features.append((item[0],cats[j]))
 
-        c = 0.
-        w = 0.
-        for s, l in itertools.izip(test_set,test_labels):
-            #print classifier.predict(s)
-            #print l
-            if classifier.predict(s) == l:
-                c+=1
-                cd[cats[l]]+=1
-            else:
-                w+=1
-                wd['was '+cats[l]+' but we guessed '+cats[int(classifier.predict(s)[0])]]+=1
-        results.append(c/(c+w))
-        '''
-        if str(classifier).startswith('Logistic'):
-            print classifier.decision_function(test_set[0])
-        '''
+        print >> sys.stderr, iteration, 'th iteration'
+        print >> sys.stderr, len(train_set), 'training examples'
 
-    print '\n*****************'
-    print '\nCURRENT CLASSIFIER:', str(classifier)
-    print '10-fold cross-validation average accuracy: ',sum(results)/len(results) # print 10-fold average
-    print '\nmost common correct ones'
-    for item in sorted(cd.iteritems(), key = itemgetter(1), reverse = True):
-        print item 
-
-    print '\nmost common wrong ones'
-    for item in sorted(wd.iteritems(), key = itemgetter(1), reverse = True):
-        print item
+        
+        features = maxent.TypedMaxentFeatureEncoding.train(joint_features)
+        print 'features encoded'
+        classifier = nltk.MaxentClassifier.train(joint_features,algorithm='IIS',max_iter=2)
+        
+        kl_stats = []
+        for f, l in itertools.izip(test_set,test_labels):
+            classout = [0.]*8
+            probdist = classifier.prob_classify(f)
+            for item in probdist.samples():
+                classout[cats.index(item)] = probdist.prob(item)
+            '''
+            print classout
+            print l
+            print kldiv(l,classout)
+            print ''
+            '''
+            kl_stats.append(kldiv(l,classout))
+            
+        results.append(float(sum(kl_stats))/len(kl_stats))
+        print results
+        
+    
 
 def main():
     data = []
-    for i in sorted(os.listdir(sys.argv[1])):
-        poem_f = open(sys.argv[1]+'/'+i).readlines()
-        comment_f = open(sys.argv[2]+'/'+i).readlines()
+    poems = PoemModel(sys.argv[1]).poems
+    for i, f in enumerate(sorted(os.listdir(sys.argv[1]))):
+        comment_f = open(sys.argv[2]+'/'+f).readlines()
+        poem = poems[i]
         if len(comment_f) < 10: continue   # this line removes poems from consideration if they have less than 10 comments - comment this out if you want to consider all poems
-        data.append((doc_features(poem_f), get_label(comment_f)))
-    print len(data)
-    for classifier in classifiers:
-        ten_fold(data, classifier)
+        label = get_label(comment_f)
+        #print label
+        if label == 'empty': continue
+        data.append((poem, label))
+    ten_fold(data)
 
 main()
 
