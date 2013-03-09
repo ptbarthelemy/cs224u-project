@@ -25,7 +25,7 @@ def loadWords(filename, wordSet):
 
 class PoemModel():
 	def __init__(self, dirname):
-		self.poems = []
+		self.poems = {}
 		filenames = getFilesOf(dirname)
 		self.rhymeDict = {}
 		self.loadRhymeDict("../data/rhyme-dict.txt")
@@ -42,7 +42,7 @@ class PoemModel():
 			self.getPoeticFeatures(poemFeatures, text)
 			self.getSentimentFeatures(poemFeatures, text)
 
-			self.poems.append(poemFeatures)
+			self.poems[filename.split("/")[-1]] = poemFeatures
 
 	def loadWordsFromHGI(self, filename):
 		positiveCategories = ["positiv"]
@@ -236,7 +236,7 @@ class PoemModel():
 
 if __name__ == "__main__":
 	m = PoemModel("../data/extracted_poems/")
-	print m.poems[-1]
+	print m.poems
 	# vec = DictVectorizer()
 	# print vec.fit_transform(m.poems).toarray()
 	# print vec.get_feature_names()
