@@ -28,11 +28,7 @@ class PoemModel():
 		self.poems = []
 		filenames = getFilesOf(dirname)
 		self.rhymeDict = {}
-		self.wordsPositive = set()
-		self.wordsNegative = set()
 		self.loadRhymeDict("../data/rhyme-dict.txt")
-		loadWords("../data/wordlists/LoughranMcDonald_Positive.csv", self.wordsPositive)
-		loadWords("../data/wordlists/LoughranMcDonald_Negative.csv", self.wordsNegative)
 		self.loadWordsFromHGI("../data/wordlists/harvard-general-inquirer-basic.csv")
 
 		for filename in filenames:
@@ -49,9 +45,13 @@ class PoemModel():
 			self.poems.append(poemFeatures)
 
 	def loadWordsFromHGI(self, filename):
+		positiveCategories = ["positiv"]
+		negativeCategories = ["negativ"]
 		abstractCategories = ["abs@", "abs"]
 		concreteCategories = ["space", "object", "color", "place"]
 
+		self.wordsPositive = set()
+		self.wordsNegative = set()
 		self.wordsAbstract = set()
 		self.wordsConcrete = set()
 
@@ -64,6 +64,10 @@ class PoemModel():
 					self.wordsAbstract.add(word)
 				elif cat in concreteCategories:
 					self.wordsConcrete.add(word)
+				if cat in positiveCategories:
+					self.wordsPositive.add(word)
+				elif cat in negativeCategories:
+					self.wordsNegative.add(word)
 		f.close()
 
 	def loadRhymeDict(self, filename):
