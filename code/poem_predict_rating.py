@@ -1,126 +1,78 @@
-# classifies poems against labels from comments, runs 10-fold cross-validation with a maxent classifier
-# usage: python classify.py [poem_dir] [comments_dir]
-# 'NRC-lexicon.txt' must be in the right directory (currently '../data/')
-
-import sys, os, nltk, itertools, string, random
-from kl import kldiv
-import numpy as np
-from nltk.classify import maxent
-from collections import defaultdict
-from operator import itemgetter
+import sys, os, nltk, itertools, string, random, numpy
+from re import findall
 from extract_poem_features import PoemModel
+from sklearn.feature_extraction import DictVectorizer
+from sklearn import datasets, linear_model
+from random import shuffle
 
 # for saving/opening file
 import pickle
 from os.path import isfile
 
-# # maps categories to indices (i.e. dimensions) so we can use real-valued features
-# cats = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
+def getScore(text):
+    result = findall(r"rating:\s+(\d+.\d)", text)
+    if len(result) > 0:
+        return float(result[0])
+    return None
 
-# lex = open('../data/NRC-lexicon.txt')
-# lex_dict = {}
-# for l in lex:
-#     if l.split()[0] not in lex_dict:
-#         lex_dict[l.split()[0]]=set([])
-#     if l.split()[2] == '1':
-#         lex_dict[l.split()[0]].add(l.split()[1])
+def tenFold(features, scores, featureNames):
+    rssValues = []
+    for iteration in xrange(10):
+        # partition data
+        start = iteration*(len(features) / 10)
+        end = start + (len(features) / 10)
+        trainFeatures = features[0:start+1]
+        trainFeatures.extend(features[end:])
+        trainScores = scores[0:start+1]
+        trainScores.extend(scores[end:])
+        testFeatures = features[start:end]
+        testScores = scores[start:end]
 
+        # train
+        regr = linear_model.LinearRegression()
+        regr.fit(trainFeatures, trainScores)
 
-def get_label(metafile):
-    # this function gets the label(s) from a comments file
-    # current implementation represents this as a list where emotional values are scaled to 100
-    # and for a given featureset (poem) the classifier is trained on 100 examples using this
-    # distribution of labels
+        # test
+        rss = numpy.mean((regr.predict(testFeatures) - testScores) ** 2)
+        rssValues.append(rss)
 
-    # note: these values are normalized to sum to 1, not to 100
-    print metafile.findall("rating:\w+(\d.\d)")
-    return 0
-                
-def doc_features(poem):
-    featureset = defaultdict(int)
-    total_words = 0.0
-    for pl in poem:
-        for w in pl.split():
-            s = ''.join(ch for ch in w.lower() if ch not in string.punctuation)
-            if s in lex_dict:
-                for key in lex_dict[s]:
-                    if key != 'positive' and key != 'negative':
-                        featureset[key] += 1
-                        total_words += 1.0
-    return featureset
+        # # print output
+        # print "  iteration", iteration
+        # print "  coefficients"
+        # for key, val in zip(featureNames, regr.coef_):
+        #     print "    ", key, ",",  val
+        # print "  residual sum of squares: %.2f" % rss
 
-def ten_fold(data):
-    results = []
-    for iteration in [0]: #xrange(10):
-        train_set, test_set, train_labels, test_labels=[],[],[],[]
-        start = iteration*(len(data)/10)
-        end = start + (len(data)/10)
-
-        # scale label to 100
-
-        joint_features = []
-        for i, item in enumerate(data):
-            if i >= start and i < end:
-                test_set.append(item[0])
-                test_labels.append(item[1])
-            else:
-                train_set.append(item[0])
-                train_labels.append(item[1])
-                joint_features.append((item[0],item[1]))
-
-        print >> sys.stderr, iteration, 'th iteration'
-        print >> sys.stderr, len(train_set), 'training examples'
-
-        # training        
-        features = maxent.TypedMaxentFeatureEncoding.train(joint_features)
-        print 'features encoded'
-        classifier = nltk.MaxentClassifier.train(joint_features,algorithm='IIS',max_iter=2)
+    print "  mean rss from all runs: %0.2f" % numpy.mean(rssValues)
         
-        # testing
-        kl_stats = []
-        for f, l in itertools.izip(test_set,test_distributions):
-            classout = [0.]*8
-            probdist = classifier.prob_classify(f)
-            for item in probdist.samples():
-                classout[cats.index(item)] = probdist.prob(item)
-            '''
-            print classout
-            print l
-            print kldiv(l,classout)
-            print ''
-            '''
-            kl_stats.append(kldiv(l,classout))
-            
-        results.append(float(sum(kl_stats))/len(kl_stats))
-        print results
-        
-
-def main():
+if __name__ == "__main__":
     dataFileName = "data.list"
     poemDirectory = sys.argv[1]
     metaDirectory = sys.argv[2]
 
     print "Processing data..."
-    data = []
+    features = []
+    scores = []
     poems = PoemModel(poemDirectory).poems
-    for i, f in enumerate(sorted(os.listdir(metaDirectory))):
-        meta = open(metaDirectory+'/'+f).readlines()
-        poem = poems[f]
-        label = get_label(meta)
-        data.append((poem, label))
+    filenames = os.listdir(metaDirectory)
+    shuffle(filenames) # don't want all of the good ones to show up first
+    for i, f in enumerate(filenames):
+        meta = open(metaDirectory+'/'+f).read()
+        score = getScore(meta)
+        if score is None:
+            print "  skipping poem", f
+            continue # skip poems without ratings
+        scores.append(score)
+        features.append(poems[f])
+    vec = DictVectorizer()
+    features = vec.fit_transform(features).toarray().tolist()
+    featureNames = vec.get_feature_names()
 
-    # # calculate some stats
-    # klvalues = []
-    # for i, (_, l1) in enumerate(data):
-    #     for j, (_, l2) in enumerate(data):
-    #         klvalues.append(kldiv(l1, l2))
-    # print "average klvalue of any pair of distributions", np.mean(klvalues)
-    # distAverage = [sum(a) for a in zip(*[b for a,b in data])] # this isn't normalized, but it doesn't matter
-    # klvalues = []
-    # for i, (_, l1) in enumerate(data):
-    #     klvalues.append(kldiv(l1, distAverage))
-    # print "average klvalue relative to average distribution", np.mean(klvalues)
+    print "Benchmarking..."
+    meanScore = numpy.mean(scores)
+    print "  mean score", meanScore
+    print "  residual sum of squares using average score: %.2f" % \
+        numpy.mean((meanScore - scores) ** 2)
 
-    ten_fold(data)
-
-main()
+    print "Performing regression using %d data points..." % len(scores)
+    tenFold(features, scores, featureNames)
