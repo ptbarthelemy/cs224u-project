@@ -86,6 +86,6 @@ def main(numPage):
 #   scrapePoetList(numPage)
 #   for i in range(10):
 #     crawlPoemPages(i+1)
-  crawlPoemPages(2)
+  crawlPoemPages(1)
 
 main(10)
