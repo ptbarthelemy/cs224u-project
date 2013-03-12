@@ -32,7 +32,7 @@ def crawlPoemPages(page):
   f.close()
   table = soup.findAll('a', {'class':'name'})
   assert(len(table) == 50)
-#   for j in range(14):
+#   for j in range(9, 11):
 #     t = table[j]
   for t in table:
     print t['title']
@@ -86,6 +86,6 @@ def main(numPage):
 #   scrapePoetList(numPage)
 #   for i in range(10):
 #     crawlPoemPages(i+1)
-  crawlPoemPages(1)
+  crawlPoemPages(3)
 
 main(10)
