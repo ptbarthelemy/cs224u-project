@@ -51,7 +51,7 @@ class PoemModel():
 			poemFeatures = {}
 			self.getOrthographicFeatures(poemFeatures, text)
 			self.getPoeticFeatures(poemFeatures, text)
-			# self.getSentimentFeatures(poemFeatures, text)
+			self.getSentimentFeatures(poemFeatures, text)
 
 			self.poems[filename.split("/")[-1]] = poemFeatures
 
@@ -113,10 +113,10 @@ class PoemModel():
 		distinctWords = set(words)
 		numDistinctWords = len(distinctWords)
 
-		# poemFeatures["numLines"] = log(numLines)
-		# poemFeatures["numStanzas"] = log(numStanzas)
-		# poemFeatures["numLinesPerStanzas"] = (numLines * 1.0 /numStanzas)
-		# poemFeatures["numWordsPerLine"] = numWords * 1.0 / numLines
+		poemFeatures["numLines"] = log(numLines)
+		poemFeatures["numStanzas"] = log(numStanzas)
+		poemFeatures["numLinesPerStanzas"] = (numLines * 1.0 /numStanzas)
+		poemFeatures["numWordsPerLine"] = numWords * 1.0 / numLines
 		poemFeatures["typeTokenRatio"] = numDistinctWords * 1.0 / numWords
 
 	def scanPhonemes(self, phonemes, plist, i, stopatVowel=True):
@@ -220,9 +220,9 @@ class PoemModel():
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)
 
-		# poemFeatures["perfectRhymeScore"] = perfectRhyme
+		poemFeatures["perfectRhymeScore"] = perfectRhyme
 		poemFeatures["slantRhymeScore"] = slantRhyme
-		# poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
+		poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
 
 
 	def getSentimentFeatures(self, poemFeatures, text):

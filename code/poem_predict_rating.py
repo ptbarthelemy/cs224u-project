@@ -10,6 +10,8 @@ from random import shuffle
 import pickle
 from os.path import isfile
 
+USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
+
 def getScore(text):
     result = findall(r"rating:\s+(\d+.\d)", text)
     if len(result) > 0:
@@ -19,9 +21,14 @@ def getScore(text):
 def getPoemScores(directory):
     scores = {}
     for filename in os.listdir(directory):
-        with open(metaDirectory+'/'+filename) as f:
+        with open(directory+'/'+filename) as f:
             scores[filename] = getScore(f.read())
     return scores
+
+def filterFeatures(featureDict):
+    # could change this to return all
+    return dict((key, val) for key,val in featureDict.items()
+        if key in USE_FEATURE_LIST)
 
 def tenFold(features, scores, featureNames):
     rssTest = []
@@ -85,7 +92,7 @@ if __name__ == "__main__":
     poemDirectory = sys.argv[1]
     metaDirectory = sys.argv[2]
 
-    print "Processing data..."
+    print "Extracting features..."
     poems = PoemModel(poemDirectory).poems
     scores = getPoemScores(metaDirectory)
 
@@ -106,7 +113,7 @@ if __name__ == "__main__":
             continue
 
         scoreArr.append(scores[filename])
-        featureArr.append(poems[filename])
+        featureArr.append(filterFeatures(poems[filename]))
 
         # # print featureArr for specific poem
         # print "poem", f
