@@ -1,8 +1,9 @@
-import sys, os, nltk, itertools, string, random, numpy
+import sys, os, nltk, itertools, string, random
 from re import findall
 from extract_poem_features import PoemModel
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import datasets, linear_model
+from numpy import mean
 from random import shuffle
 
 # for saving/opening file
@@ -15,8 +16,18 @@ def getScore(text):
         return float(result[0])
     return None
 
+def getPoemScores(directory):
+    scores = {}
+    for filename in os.listdir(directory):
+        with open(metaDirectory+'/'+filename) as f:
+            scores[filename] = getScore(f.read())
+    return scores
+
 def tenFold(features, scores, featureNames):
-    rssValues = []
+    rssTest = []
+    rssTrain = []
+    rssTestBenchmark = []
+    rssTrainBenchmark = []
     for iteration in xrange(10):
         # partition data
         start = iteration*(len(features) / 10)
@@ -31,19 +42,43 @@ def tenFold(features, scores, featureNames):
         # train
         regr = linear_model.LinearRegression()
         regr.fit(trainFeatures, trainScores)
+        rss = mean((regr.predict(trainFeatures) - trainScores) ** 2)
+        rssTrain.append(rss)
 
         # test
-        rss = numpy.mean((regr.predict(testFeatures) - testScores) ** 2)
-        rssValues.append(rss)
+        rss = mean((regr.predict(testFeatures) - testScores) ** 2)
+        rssTest.append(rss)
 
-        # # print output
-        # print "  iteration", iteration
-        # print "  coefficients"
-        # for key, val in zip(featureNames, regr.coef_):
-        #     print "    ", key, ",",  val
-        # print "  residual sum of squares: %.2f" % rss
+        # benchmark
+        meanScore = mean(trainScores)
+        rss = mean((meanScore - trainScores) ** 2)
+        rssTrainBenchmark.append(rss)
+        rss = mean((meanScore - testScores) ** 2)
+        rssTestBenchmark.append(rss)
 
-    print "  mean rss from all runs: %0.2f" % numpy.mean(rssValues)
+        # print weight info
+        print "  iteration", iteration
+        print "  coefficients"
+        for key, val in zip(featureNames, regr.coef_):
+            print "    ", key, ",",  val
+        print "  residual sum of squares: %.2f" % rss
+
+    trainError = mean(rssTrain)
+    testError = mean(rssTest)
+    benchmarkTrainError = mean(rssTrainBenchmark)
+    benchmarkTestError = mean(rssTestBenchmark)
+
+    print "---------------------------------------------"
+    print "Mean RSS value |    base |  result |     diff"
+    print "---------------------------------------------"
+    print "  train error  |    %0.2f |    %0.2f |    %0.2f%%" % \
+        (benchmarkTrainError, trainError, 
+        ((benchmarkTrainError - trainError) * 100/ benchmarkTrainError))
+    print "  test error   |    %0.2f |    %0.2f |    %0.2f%%" % \
+        (benchmarkTestError, testError, 
+        ((benchmarkTestError - testError) * 100/ benchmarkTestError))
+    print "---------------------------------------------"
+
         
 if __name__ == "__main__":
     dataFileName = "data.list"
@@ -51,28 +86,43 @@ if __name__ == "__main__":
     metaDirectory = sys.argv[2]
 
     print "Processing data..."
-    features = []
-    scores = []
     poems = PoemModel(poemDirectory).poems
-    filenames = os.listdir(metaDirectory)
+    scores = getPoemScores(metaDirectory)
+
+    print "Finding metadata info..."
+    filenames = poems.keys()[:]
     shuffle(filenames) # don't want all of the good ones to show up first
-    for i, f in enumerate(filenames):
-        meta = open(metaDirectory+'/'+f).read()
-        score = getScore(meta)
-        if score is None:
-            print "  skipping poem", f
-            continue # skip poems without ratings
-        scores.append(score)
-        features.append(poems[f])
+    featureArr = []
+    scoreArr = []
+    for filename in filenames:
+        if scores.get(filename, None) is None:
+            # skip poems without ratings
+            print "  no rating for", filename
+            continue 
+
+        if poems.get(filename, None) is None:
+            # only include poem if features are extracted for it
+            print "  no features for", filename
+            continue
+
+        scoreArr.append(scores[filename])
+        featureArr.append(poems[filename])
+
+        # # print featureArr for specific poem
+        # print "poem", f
+        # for key, value in poems[f].items():
+        #     print "  ", key, ":", value
+
     vec = DictVectorizer()
-    features = vec.fit_transform(features).toarray().tolist()
+    featureArr = vec.fit_transform(featureArr).toarray().tolist()
+    # normalize?
+    # featureArr = vec.fit_transform(featureArr).toarray()
+    # colMax = featureArr.max(axis=1)
+    # colMin = featureArr.min(axis=1)
+    # featureArr = (featureArr - colMin[:, numpy.newaxis]) / colMax[:, numpy.newaxis]
+    # featureArr = featureArr.tolist()
+    # print featureArr
     featureNames = vec.get_feature_names()
 
-    print "Benchmarking..."
-    meanScore = numpy.mean(scores)
-    print "  mean score", meanScore
-    print "  residual sum of squares using average score: %.2f" % \
-        numpy.mean((meanScore - scores) ** 2)
-
-    print "Performing regression using %d data points..." % len(scores)
-    tenFold(features, scores, featureNames)
+    print "Performing regression using %d data points..." % len(scoreArr)
+    tenFold(featureArr, scoreArr, featureNames)

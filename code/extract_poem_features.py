@@ -1,7 +1,14 @@
+"""
+This module reads the poems and extracts the features, storing them in a 
+PoemModel object. To obtain a dictionary of these features (maps filename
+	to features, e.g. "011" : {feature dict}), use poemModel.poems.
+"""
+
 import sys
 import re
 from os.path import isfile
 from os import listdir, remove
+from math import log
 # from sklearn.feature_extraction import DictVectorizer
 
 # up to how many words back are we looking to find alliteration?
@@ -14,14 +21,16 @@ LINES_FOR_RHYME = 2
 def getFilesOf(dirname):
 	return [dirname + f for f in listdir(dirname) if isfile(dirname + f)]
 
-def isVowelPhoneme(phoneme):
-	return phoneme[:1] in "aeiou"
+def poemNotPublished(filetext):
+	# Some of our poems are actually not provided. Don't use these!
+	if "The text of this poem could not be published because of Copyright laws" in filetext:
+		return True
+	return False
 
-def loadWords(filename, wordSet):
-	f = open(filename)
-	for line in f.readlines():
-		wordSet.add(line.split(",")[0].lower())
-	f.close()
+def isVowelPhoneme(phoneme):
+	# Check to see whether the phoneme starts with a vowel. This means that
+	# it is a vowel sound.
+	return phoneme[:1] in "aeiou"
 
 class PoemModel():
 	def __init__(self, dirname):
@@ -32,28 +41,30 @@ class PoemModel():
 		self.loadWordsFromHGI("../data/wordlists/harvard-general-inquirer-basic.csv")
 
 		for filename in filenames:
-			# print "reading", filename
+			# read poem
 			text = open(filename).read()
-			poemFeatures = {}
+			if poemNotPublished(text):
+				# skip unpublished poems
+				continue
 
 			# add features
+			poemFeatures = {}
 			self.getOrthographicFeatures(poemFeatures, text)
 			self.getPoeticFeatures(poemFeatures, text)
-			self.getPoeticFeatures(poemFeatures, text)
-			self.getSentimentFeatures(poemFeatures, text)
+			# self.getSentimentFeatures(poemFeatures, text)
 
 			self.poems[filename.split("/")[-1]] = poemFeatures
 
 	def loadWordsFromHGI(self, filename):
+		# Load words from Harvard General inquirer based on the categories
+		# specified below.
 		positiveCategories = ["positiv"]
 		negativeCategories = ["negativ"]
 		abstractCategories = ["abs@", "abs"]
 		concreteCategories = ["space", "object", "color", "place"]
 
-		self.wordsPositive = set()
-		self.wordsNegative = set()
-		self.wordsAbstract = set()
-		self.wordsConcrete = set()
+		self.wordsPositive, self.wordsNegative, self.wordsAbstract, \
+			self.wordsConcrete = [set() for i in range(4)]
 
 		f = open(filename, "r")
 		for line in f.readlines()[1:]:
@@ -71,6 +82,7 @@ class PoemModel():
 		f.close()
 
 	def loadRhymeDict(self, filename):
+		# Load the CMU rhyming dictionary. Store as a dictionary.
 		f = open(filename, "r")
 		for line in f.readlines():
 			if line[:1] == ";": continue # skip comments
@@ -83,7 +95,6 @@ class PoemModel():
 
 		# number of lines
 		numLines = len(list(a for a in linesWithoutComments if len(a) > 0)) # ignore empty lines
-		poemFeatures["numLines"] = numLines
 
 		# number of stanzas
 		inStanza = True
@@ -95,16 +106,18 @@ class PoemModel():
 					inStanza = False
 			else:
 				inStanza = True
-		poemFeatures["numStanzas"] = numStanzas
-		poemFeatures["numLinesPerStanzas"] = (numLines * 1.0 /numStanzas)
 
 		# numWords per line
 		words = re.findall(r"\w+", " ".join(linesWithoutComments))
 		numWords = len(words)
 		distinctWords = set(words)
 		numDistinctWords = len(distinctWords)
-		poemFeatures["numWordsPerLine"] = numWords * 1.0 / numLines
-		poemFeatures["typeTokenRatio"] = numWords * 1.0 / numDistinctWords
+
+		# poemFeatures["numLines"] = log(numLines)
+		# poemFeatures["numStanzas"] = log(numStanzas)
+		# poemFeatures["numLinesPerStanzas"] = (numLines * 1.0 /numStanzas)
+		# poemFeatures["numWordsPerLine"] = numWords * 1.0 / numLines
+		poemFeatures["typeTokenRatio"] = numDistinctWords * 1.0 / numWords
 
 	def scanPhonemes(self, phonemes, plist, i, stopatVowel=True):
 		while i < len(phonemes):
@@ -206,19 +219,17 @@ class PoemModel():
 
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)
-		poemFeatures["perfectRhymeScore"] = perfectRhyme
+
+		# poemFeatures["perfectRhymeScore"] = perfectRhyme
 		poemFeatures["slantRhymeScore"] = slantRhyme
-		poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
+		# poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
 
 
 	def getSentimentFeatures(self, poemFeatures, text):
 		text = re.sub(r"^#.*\n", "",text.lower()) # remove comments
 		words = re.findall(r"\w+", text)
 
-		posWords = 0
-		negWords = 0
-		conWords = 0
-		absWords = 0
+		posWords, negWords, conWords, absWords = [0] * 4
 		for word in words:
 			if word in self.wordsPositive:
 				posWords += 1
@@ -234,11 +245,19 @@ class PoemModel():
 		poemFeatures["conWords"] = conWords * 1.0 / len(words)
 		poemFeatures["absWords"] = absWords * 1.0 / len(words)
 
+
 if __name__ == "__main__":
 	m = PoemModel("../data/extracted_poems/")
-	print m.poems
-	# vec = DictVectorizer()
-	# print vec.fit_transform(m.poems).toarray()
-	# print vec.get_feature_names()
-	# print m.poems
 
+	# # diagnostic tests
+	# rhymeList = sorted(m.poems.keys(), key=lambda x: -m.poems[x]["perfectRhymeScore"])
+	# print "best rhyming poems"
+	# for a in rhymeList[:5]:
+	# 	print a, m.poems[a]["perfectRhymeScore"]
+
+	# print "worst rhyming poems"
+	# for a in rhymeList[-5:]:
+	# 	print a, m.poems[a]["perfectRhymeScore"]
+
+	# print m.isPerfectRhyme("sentence", "repentance")
+	# print m.isSlantRhyme("sentence", "repentance")
