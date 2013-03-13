@@ -59,7 +59,6 @@ def extractComments(filenames, commentAsDocument=True):
 			text = cleanComments(text)
 			for comment in re.findall(r"Commenter:[\w ]+\|\|\|  (.*)  \|\|\| likes", text):
 				addComment += comment
-			print ">>>NEW COMMENT: ", addComment[:200]
 			comments.append(addComment)
 
 		f.close()

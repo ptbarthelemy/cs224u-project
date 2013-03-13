@@ -1,16 +1,19 @@
 import sys, os, nltk, itertools, string, random
 from re import findall
-from extract_poem_features import PoemModel
+from extract_poem_features import getPoemModel
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import datasets, linear_model
 from numpy import mean
 from random import shuffle
-
-# for saving/opening file
 import pickle
 from os.path import isfile
 
-USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
+from extract_comment_features import getAffectRatios
+
+# USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
+USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio']
+META_DIRECTORY = "../data/meta"
+
 
 def getScore(text):
     result = findall(r"rating:\s+(\d+.\d)", text)
@@ -18,10 +21,10 @@ def getScore(text):
         return float(result[0])
     return None
 
-def getPoemScores(directory):
+def getPoemScores():
     scores = {}
-    for filename in os.listdir(directory):
-        with open(directory+'/'+filename) as f:
+    for filename in os.listdir(META_DIRECTORY):
+        with open(META_DIRECTORY+'/'+filename) as f:
             scores[filename] = getScore(f.read())
     return scores
 
@@ -75,26 +78,25 @@ def tenFold(features, scores, featureNames):
     benchmarkTrainError = mean(rssTrainBenchmark)
     benchmarkTestError = mean(rssTestBenchmark)
 
-    print "---------------------------------------------"
-    print "Mean RSS value |    base |  result |     diff"
-    print "---------------------------------------------"
-    print "  train error  |    %0.2f |    %0.2f |    %0.2f%%" % \
+    print "------------------------------------------------"
+    print "Mean RSS value |    base |  result | improves by"
+    print "------------------------------------------------"
+    print "  train error  |    %0.2f |    %0.2f |      %0.2f%%" % \
         (benchmarkTrainError, trainError, 
         ((benchmarkTrainError - trainError) * 100/ benchmarkTrainError))
-    print "  test error   |    %0.2f |    %0.2f |    %0.2f%%" % \
+    print "  test error   |    %0.2f |    %0.2f |      %0.2f%%" % \
         (benchmarkTestError, testError, 
         ((benchmarkTestError - testError) * 100/ benchmarkTestError))
-    print "---------------------------------------------"
+    print "------------------------------------------------"
 
         
 if __name__ == "__main__":
     dataFileName = "data.list"
-    poemDirectory = sys.argv[1]
-    metaDirectory = sys.argv[2]
 
     print "Extracting features..."
-    poems = PoemModel(poemDirectory).poems
-    scores = getPoemScores(metaDirectory)
+    poems = getPoemModel().poems
+    # scores = getPoemScores()
+    scores = getAffectRatios()
 
     print "Finding metadata info..."
     filenames = poems.keys()[:]
@@ -102,18 +104,20 @@ if __name__ == "__main__":
     featureArr = []
     scoreArr = []
     for filename in filenames:
-        if scores.get(filename, None) is None:
+        score = scores.get(filename, None)
+        if score is None:
             # skip poems without ratings
             print "  no rating for", filename
             continue 
 
-        if poems.get(filename, None) is None:
+        featureSet = poems.get(filename, None)
+        if featureSet is None:
             # only include poem if features are extracted for it
             print "  no features for", filename
             continue
 
-        scoreArr.append(scores[filename])
-        featureArr.append(filterFeatures(poems[filename]))
+        scoreArr.append(score)
+        featureArr.append(filterFeatures(featureSet))
 
         # # print featureArr for specific poem
         # print "poem", f
