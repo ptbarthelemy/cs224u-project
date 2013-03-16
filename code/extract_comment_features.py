@@ -9,13 +9,23 @@ from nltk import corpus
 MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
+AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
 NRC_CATEGORIES = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
 NRC_FILE = '../data/NRC-lexicon.txt'
 
-stopwordCorpus = corpus.stopwords.words('english')
+stopwordList = corpus.stopwords.words('english')
+affectWordList = liwc()['Affect']
+
+def makeListRegex(l):
+	result = r"\b" + r"\b|\b".join(l) + r"\b"
+	return re.sub("\.", "[a-z]", result)
+
+def removeStopwords(text):
+	stopwordRegex = makeListRegex(stopwordList)
+	return re.sub(stopwordRegex, "", text)
 
 def getWords(text):
-	return [a for a in re.findall("[\w']+", text) if a not in stopwordCorpus]
+	return re.findall("[\w']+", removeStopwords(text))
 
 def getCommentFilenames():
 	return [(f, COMMENT_DIR + f) for f in listdir(COMMENT_DIR) if isfile(COMMENT_DIR + f)]
@@ -46,6 +56,17 @@ def getCommentSets(commentAsDocument=True):
 			comments[filename] = newComments
 	return comments
 
+def getAffectRatio(text):
+	count = 0
+	words = getWords(text) # find words, filter out stopwords
+	if len(words) == 0:
+		return 0
+	newText = ' '.join(words)
+	affectWordRegex = makeListRegex(affectWordList)
+	# print affectWordRegex
+	# print "RE  :", re.findall(affectWordRegex, newText)
+	return len(re.findall(affectWordRegex, newText)) * 1.0 / len(words)
+
 def getAffectRatios():
 	if isfile(AFFECT_RATIO_DICT):
 		print "Loading affect ratio dict from file..."
@@ -53,17 +74,35 @@ def getAffectRatios():
 
 	print "Creating affect ratio dict..."
 	affectRatios = {}
-	affectWords = liwc()['Affect']
 	for filename, text in getCommentSets(False).items():
-		count = 0
-		words = getWords(text[0]) # find words, filter out stopwords
-		newText = ' '.join(words)
-		for regex in affectWords:
-			count += len(re.findall(regex + r"\b", newText))
-		affectRatios[filename] = count * 1.0 / len(words)
+		affectRatios[filename] = getAffectRatio(text[0])
 
 	pickle.dump(affectRatios, open(AFFECT_RATIO_DICT, "w+"))
 	return affectRatios
+
+def getTopAffectRatioComments():
+	if isfile(AFFECT_RATIO_PER_COMMENT_DICT):
+		print "Loading affect ratio dict from file..."
+		comments = pickle.load(open(AFFECT_RATIO_PER_COMMENT_DICT, "r"))
+	else:
+		print "Calculating affect ratios..."
+		comments = []
+		for filename, text in getCommentSets(True).items():
+			for comment in text:
+				comments.append((getAffectRatio(comment), comment))
+		pickle.dump(comments, open(AFFECT_RATIO_PER_COMMENT_DICT, "w+"))
+
+	print "Sorting comments"
+	comments = sorted(comments, key=lambda (x,y): -x)
+	printNum = 20
+	print "Highest affect ratios:"
+	for i in range(printNum):
+		print "%0.2f\t%s" % comments[i]
+	print "Lowest affect ratios:"
+	for i in range(printNum):
+		print "%0.2f\t%s" % comments[-i-1]
+
+	return comments
 
 def getNRCLexicon():
 	f = open(NRC_FILE)
@@ -101,7 +140,8 @@ def getAffectHistograms():
 
 if __name__ == '__main__':
 
-	print getAffectRatios()
+	# print getAffectRatios()
+	m = getTopAffectRatioComments()
 
 	# m = getCommentSets()
 	# print m['111'][0]
