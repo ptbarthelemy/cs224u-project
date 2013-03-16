@@ -6,24 +6,33 @@ PoemModel object. To obtain a dictionary of these features (maps filename
 
 import sys
 import re
+import pickle
 from os.path import isfile
 from os import listdir, remove
 from math import log
-# from sklearn.feature_extraction import DictVectorizer
+from parse_realliwc import parseRealLIWC as liwc
 
 # up to how many words back are we looking to find alliteration?
 WORDS_FOR_ALLITERATION = 5
-
 # up to how many lines back are we looking for rhyme?
 LINES_FOR_RHYME = 2
+POEM_DIR = "../data/extracted_poems/"
+RHYME_DICT_PATH = "../data/rhyme-dict.txt"
+HGI_PATH = "../data/wordlists/harvard-general-inquirer-basic.csv"
+SAVED_MODEL = "poem_model.p"
 
+def getWords(text):
+	return re.findall("[\w']+", text)
+
+def getLines(text):
+	return text.split("\n")
 
 def getFilesOf(dirname):
 	return [dirname + f for f in listdir(dirname) if isfile(dirname + f)]
 
-def poemNotPublished(filetext):
+def poemNotPublished(text):
 	# Some of our poems are actually not provided. Don't use these!
-	if "The text of this poem could not be published because of Copyright laws" in filetext:
+	if "The text of this poem could not be published because of Copyright laws" in text:
 		return True
 	return False
 
@@ -32,28 +41,54 @@ def isVowelPhoneme(phoneme):
 	# it is a vowel sound.
 	return phoneme[:1] in "aeiou"
 
+def cleanPoem(text):
+	if poemNotPublished(text):
+		# skip unpublished poem
+		return None
+	result = re.sub("#.*\n", "", text) # remove comments
+	result = result.lower() # make lowercase
+	return result
+
+def getPoemModel():
+	if isfile(SAVED_MODEL):
+		print "Loading poem features from file..."
+		return pickle.load(open(SAVED_MODEL, "r"))
+
+	print "Creating poem features..."
+	pm = PoemModel()
+	pickle.dump(pm, open(SAVED_MODEL, "w+"))
+	return pm
+
 class PoemModel():
-	def __init__(self, dirname):
+	def __init__(self):
 		self.poems = {}
-		filenames = getFilesOf(dirname)
+		filenames = getFilesOf(POEM_DIR)
 		self.rhymeDict = {}
-		self.loadRhymeDict("../data/rhyme-dict.txt")
-		self.loadWordsFromHGI("../data/wordlists/harvard-general-inquirer-basic.csv")
+		self.loadRhymeDict(RHYME_DICT_PATH)
+		self.loadWordsFromHGI(HGI_PATH)
 
 		for filename in filenames:
-			# read poem
-			text = open(filename).read()
-			if poemNotPublished(text):
-				# skip unpublished poems
+			# read poem / clean poem
+			text = cleanPoem(open(filename).read())
+			if not text:
 				continue
 
 			# add features
 			poemFeatures = {}
+			filename = filename.split("/")[-1]
+			# self.getAffectRatio(poemFeatures, text) # not sure whether we want this
 			self.getOrthographicFeatures(poemFeatures, text)
 			self.getPoeticFeatures(poemFeatures, text)
 			self.getSentimentFeatures(poemFeatures, text)
+			self.poems[filename] = poemFeatures
 
-			self.poems[filename.split("/")[-1]] = poemFeatures
+	def getAffectRatio(self, filename, text):
+		# this could be provided as a feature, too
+		self.wordsAffect = liwc()['Affect']
+		count = 0
+		for regex in self.wordsAffect:
+			count += len(re.findall(regex + r"\b", text))
+		poemFeatures["affectRatio"] = count * 1.0 / len(getWords(text))
 
 	def loadWordsFromHGI(self, filename):
 		# Load words from Harvard General inquirer based on the categories
@@ -91,16 +126,16 @@ class PoemModel():
 		f.close()
 
 	def getOrthographicFeatures(self, poemFeatures, text):
-		linesWithoutComments = list(a for a in text.split("\n") if a[:1] != "#")
+		lines = getLines(text)
 
 		# number of lines
-		numLines = len(list(a for a in linesWithoutComments if len(a) > 0)) # ignore empty lines
+		numLines = len(list(a for a in lines if len(a) > 0)) # ignore empty lines
 
 		# number of stanzas
 		inStanza = True
 		numStanzas = 1
-		for i, line in enumerate(linesWithoutComments):
-			if len(line.strip()) == 0 and i < len(linesWithoutComments) - 1: # some poems have trailing newline
+		for i, line in enumerate(lines):
+			if len(line.strip()) == 0 and i < len(lines) - 1: # some poems have trailing newline
 				if inStanza:
 					numStanzas += 1
 					inStanza = False
@@ -108,7 +143,7 @@ class PoemModel():
 				inStanza = True
 
 		# numWords per line
-		words = re.findall(r"\w+", " ".join(linesWithoutComments))
+		words = re.findall(r"\w+", " ".join(lines))
 		numWords = len(words)
 		distinctWords = set(words)
 		numDistinctWords = len(distinctWords)
@@ -131,7 +166,7 @@ class PoemModel():
 		vm1 = [] # vowel-minus-1      e.g. [AY1] from "skies"
 		cm2 = [] # consonant-minus-2  e.g. [S, K] from "skies"
 
-		phonemes = self.rhymeDict.get(word.lower(), None)
+		phonemes = self.rhymeDict.get(word, None)
 		if phonemes is None:
 			return None, None, None
 		phonemes = phonemes[::-1]
@@ -177,8 +212,8 @@ class PoemModel():
 		to occur at the beginning of a stressed syllable, so it could occur
 		within a word.
 		"""
-		p1 = self.rhymeDict.get(w1.lower(), None)
-		p2 = self.rhymeDict.get(w2.lower(), None)
+		p1 = self.rhymeDict.get(w1, None)
+		p2 = self.rhymeDict.get(w2, None)
 		if p1 is None or p2 is None: return 0
 
 		p1 = p1[0]
@@ -189,8 +224,9 @@ class PoemModel():
 		return 0
 
 	def getPoemRhyme(self, text):
-		trimLines = list(a for a in text.split("\n") if a[:1] != "#")
-		lineWords = [a for a in [re.findall(r"\w+", line) for line in trimLines] if len(a) > 0]
+		lineWords = [getWords(line) for line in getLines(text) if len(getLines(text)) > 0]
+		lineWords = [a for a in [re.findall(r"\w+", line) for line in \
+			text.split("\n")] if len(a) > 0]
 
 		perfectRhyme = 0
 		slantRhyme = 0
@@ -207,8 +243,7 @@ class PoemModel():
 		return perfectRhyme * 1.0 / len(lineWords), slantRhyme * 1.0 / len(lineWords)
 
 	def getPoemAllitScore(self, text):
-		text = re.sub(r"^#.*\n", "",text.lower()) # remove comments
-		words = re.findall(r"\w+", text)
+		words = getWords(text)
 		score = 0
 		for i in range(len(words)):
 			for j in range(min(WORDS_FOR_ALLITERATION, i)):
@@ -219,15 +254,13 @@ class PoemModel():
 
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)
-
 		poemFeatures["perfectRhymeScore"] = perfectRhyme
 		poemFeatures["slantRhymeScore"] = slantRhyme
 		poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
 
 
 	def getSentimentFeatures(self, poemFeatures, text):
-		text = re.sub(r"^#.*\n", "",text.lower()) # remove comments
-		words = re.findall(r"\w+", text)
+		words = getWords(text)
 
 		posWords, negWords, conWords, absWords = [0] * 4
 		for word in words:
@@ -247,7 +280,9 @@ class PoemModel():
 
 
 if __name__ == "__main__":
-	m = PoemModel("../data/extracted_poems/")
+	m = getPoemModel()
+	
+	# print m.poems
 
 	# # diagnostic tests
 	# rhymeList = sorted(m.poems.keys(), key=lambda x: -m.poems[x]["perfectRhymeScore"])
