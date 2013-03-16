@@ -73,7 +73,8 @@ if __name__ == "__main__":
     # scores = getPoemScores() # plot voter scores
     scores = getAffectRatios()  # plot affect ratios
     makePlots(poems, scores)
-    blowUpPlots(poems, scores)
+    # blowUpPlots(poems, scores)
 
     # # make histogram
     # makeHistogram()
+    

@@ -95,6 +95,8 @@ if __name__ == "__main__":
 
     print "Extracting features..."
     poems = getPoemModel().poems
+
+    # try to predict poem score or affect ratio
     # scores = getPoemScores()
     scores = getAffectRatios()
 
@@ -126,13 +128,6 @@ if __name__ == "__main__":
 
     vec = DictVectorizer()
     featureArr = vec.fit_transform(featureArr).toarray().tolist()
-    # normalize?
-    # featureArr = vec.fit_transform(featureArr).toarray()
-    # colMax = featureArr.max(axis=1)
-    # colMin = featureArr.min(axis=1)
-    # featureArr = (featureArr - colMin[:, numpy.newaxis]) / colMax[:, numpy.newaxis]
-    # featureArr = featureArr.tolist()
-    # print featureArr
     featureNames = vec.get_feature_names()
 
     print "Performing regression using %d data points..." % len(scoreArr)

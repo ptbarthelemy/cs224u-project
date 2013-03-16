@@ -4,6 +4,7 @@ import pickle
 from os.path import isfile
 from os import listdir, remove
 from parse_realliwc import parseRealLIWC as liwc
+from nltk import corpus
 
 MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
@@ -11,9 +12,10 @@ AFFECT_RATIO_DICT = "affect_ratio.p"
 NRC_CATEGORIES = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
 NRC_FILE = '../data/NRC-lexicon.txt'
 
+stopwordCorpus = corpus.stopwords.words('english')
 
 def getWords(text):
-	return re.findall("[\w']+", text)
+	return [a for a in re.findall("[\w']+", text) if a not in stopwordCorpus]
 
 def getCommentFilenames():
 	return [(f, COMMENT_DIR + f) for f in listdir(COMMENT_DIR) if isfile(COMMENT_DIR + f)]
@@ -54,10 +56,11 @@ def getAffectRatios():
 	affectWords = liwc()['Affect']
 	for filename, text in getCommentSets(False).items():
 		count = 0
-		text = text[0]
+		words = getWords(text[0]) # find words, filter out stopwords
+		newText = ' '.join(words)
 		for regex in affectWords:
-			count += len(re.findall(regex + r"\b", text))
-		affectRatios[filename] = count * 1.0 / len(getWords(text))
+			count += len(re.findall(regex + r"\b", newText))
+		affectRatios[filename] = count * 1.0 / len(words)
 
 	pickle.dump(affectRatios, open(AFFECT_RATIO_DICT, "w+"))
 	return affectRatios
