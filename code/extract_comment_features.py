@@ -8,6 +8,9 @@ from parse_realliwc import parseRealLIWC as liwc
 MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
+NRC_CATEGORIES = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
+NRC_FILE = '../data/NRC-lexicon.txt'
+
 
 def getWords(text):
 	return re.findall("[\w']+", text)
@@ -47,10 +50,9 @@ def getAffectRatios():
 		return pickle.load(open(AFFECT_RATIO_DICT, "r"))
 
 	print "Creating affect ratio dict..."
-	commentSets = getCommentSets(False)
 	affectRatios = {}
 	affectWords = liwc()['Affect']
-	for filename, text in commentSets.items():
+	for filename, text in getCommentSets(False).items():
 		count = 0
 		text = text[0]
 		for regex in affectWords:
@@ -59,6 +61,40 @@ def getAffectRatios():
 
 	pickle.dump(affectRatios, open(AFFECT_RATIO_DICT, "w+"))
 	return affectRatios
+
+def getNRCLexicon():
+	f = open(NRC_FILE)
+	result = {}
+	for line in f:
+		if line.split()[2] == '0':
+			continue
+		word = line.split()[0]
+		result[word] = result.get(word, [])
+		result[word].append(line.split()[1])
+	f.close()
+	return result
+
+def getAffectHistograms():
+	affectHist = {}
+	lexDict = getNRCLexicon()
+	for filename, text in getCommentSets(False).items():
+		# get counts
+		hist = {}
+		words = getWords(text[0])
+		for word in words:
+			cats = lexDict.get(word, None)
+			if cats is not None:
+				for cat in cats:
+					hist[cat] = hist.get(cat, 0) + 1
+
+		# normalize
+		numWords = len(words)
+		for cat, count in hist.items():
+			hist[cat] = count * 1.0 / numWords
+
+		# add to list
+		affectHist[filename] = hist
+	return affectHist
 
 if __name__ == '__main__':
 
