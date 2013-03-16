@@ -5,7 +5,9 @@ import numpy as np
 
 from extract_poem_features import getPoemModel
 from poem_predict_rating import getPoemScores
-from extract_comment_features import getAffectRatios, getAffectHistograms
+from extract_comment_features import \
+    (getAffectRatios, getAffectHistograms, getAverageCommentLength,
+        getAverageAffectWordPerComment)
 
 
 def plotFeatureVsScore(poems, scores, feature):
@@ -71,10 +73,11 @@ if __name__ == "__main__":
     poems = m.poems
     print "Finding y-values..."
     # scores = getPoemScores() # plot voter scores
-    scores = getAffectRatios()  # plot affect ratios
+    # scores = getAffectRatios()  # plot affect ratios
+    # scores = getAverageCommentLength()  # plot average comment length
+    scores = getAverageAffectWordPerComment()  
     makePlots(poems, scores)
     # blowUpPlots(poems, scores)
 
     # # make histogram
     # makeHistogram()
-    

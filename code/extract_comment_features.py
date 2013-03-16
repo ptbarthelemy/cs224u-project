@@ -12,16 +12,18 @@ AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
 NRC_CATEGORIES = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
 NRC_FILE = '../data/NRC-lexicon.txt'
+IGNORE_FILES = ["039" # someone added wikipedia articles as comments
+	]
 
 stopwordList = corpus.stopwords.words('english')
 affectWordList = liwc()['Affect']
 
-def makeListRegex(l):
+def makeRegexFromList(l):
 	result = r"\b" + r"\b|\b".join(l) + r"\b"
 	return re.sub("\.", "[a-z]", result)
 
 def removeStopwords(text):
-	stopwordRegex = makeListRegex(stopwordList)
+	stopwordRegex = makeRegexFromList(stopwordList)
 	return re.sub(stopwordRegex, "", text)
 
 def getWords(text):
@@ -30,14 +32,16 @@ def getWords(text):
 def getCommentFilenames():
 	return [(f, COMMENT_DIR + f) for f in listdir(COMMENT_DIR) if isfile(COMMENT_DIR + f)]
 
-def cleanText(text):
+def cleanData(filename, text):
 	# nothing to clean
+	if filename in IGNORE_FILES:
+		return ""
 	return text
 
-def getCommentsFromFile(path, commentAsDocument):
+def getCommentsFromFile(filename, path, commentAsDocument):
 	comments = []
 	f = open(path)
-	text = cleanText(f.read().lower())
+	text = cleanData(filename, f.read().lower())
 	f.close()
 
 	comments = re.findall(r"commenter:[\w ]+\|\|\|   (.*)  \|\|\| likes", text)
@@ -51,10 +55,25 @@ def getCommentsFromFile(path, commentAsDocument):
 def getCommentSets(commentAsDocument=True):
 	comments = {}
 	for filename, path in getCommentFilenames():
-		newComments = getCommentsFromFile(path, commentAsDocument)
+		newComments = getCommentsFromFile(filename, path, commentAsDocument)
 		if newComments is not None:
 			comments[filename] = newComments
 	return comments
+
+def getAverageCommentLength():
+	result = {}
+	for filename, text in getCommentSets(True).items():
+		average = sum([len(getWords(a)) for a in text]) * 1.0 / len(text)
+		result[filename] = average
+	return result
+
+def getAverageAffectWordPerComment():
+	result = {}
+	for filename, text in getCommentSets(True).items():
+		average = sum([len(re.findall(makeRegexFromList(affectWordList), ' '.join(getWords(a)))
+			) for a in text]) * 1.0 / len(text)
+		result[filename] = average
+	return result
 
 def getAffectRatio(text):
 	count = 0
@@ -62,9 +81,7 @@ def getAffectRatio(text):
 	if len(words) == 0:
 		return 0
 	newText = ' '.join(words)
-	affectWordRegex = makeListRegex(affectWordList)
-	# print affectWordRegex
-	# print "RE  :", re.findall(affectWordRegex, newText)
+	affectWordRegex = makeRegexFromList(affectWordList)
 	return len(re.findall(affectWordRegex, newText)) * 1.0 / len(words)
 
 def getAffectRatios():
@@ -139,9 +156,8 @@ def getAffectHistograms():
 	return affectHist
 
 if __name__ == '__main__':
-
-	# print getAffectRatios()
-	m = getTopAffectRatioComments()
+	print getAverageCommentLength()
+	print getAverageAffectWordPerComment()
 
 	# m = getCommentSets()
 	# print m['111'][0]
