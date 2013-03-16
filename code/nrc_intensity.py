@@ -3,7 +3,7 @@ import os, sys, operator
 def printEmotiveWordScores(dict, outFileName):
   sorted_dict = sorted(dict.iteritems(), key = operator.itemgetter(1))
   f = open(outFileName, 'w')
-  print >> f, '\n'.join(['%s\t%f' % (k,v) for (k,v) in dict.items()])
+  print >> f, '\n'.join(['%s\t%f' % (k,v) for (k,v) in sorted_dict])
   f.close()
 
 f = open('../data/NRC-lexicon.txt', 'r')
