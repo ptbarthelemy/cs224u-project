@@ -11,7 +11,7 @@ from os.path import isfile
 from extract_comment_features import getAffectRatios
 
 # USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
-USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio']
+USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
 META_DIRECTORY = "../data/meta"
 
 

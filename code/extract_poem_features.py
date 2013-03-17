@@ -20,7 +20,9 @@ POEM_DIR = "../data/extracted_poems/"
 RHYME_DICT_PATH = "../data/rhyme-dict.txt"
 HGI_PATH = "../data/wordlists/harvard-general-inquirer-basic.csv"
 SAVED_MODEL = "poem_model.p"
-NASALS_AND_LIQUIDS = set(['M','EM','N','EN','NG','ENG','L','EL','R','DX','NX','Y','W','Q']) # all nasals, liquids, and semivowels
+NASALS = set(['M','EM','N','EN','NG','ENG'])
+LIQUIDS = set(['L','EL','R','DX','NX'])
+SEMIVOWELS = set(['Y','W','Q']) # all nasals, liquids, and semivowels
 FRICATIVES = set(['F','V','TH','DH','S','Z','SH','ZH','HH','CH','JH']) # all fricatives and affricates
 STOPS = set(['P','B','T','D','K','G'])
 
@@ -251,49 +253,30 @@ class PoemModel():
 		score = 0
 		for i in range(len(words)):
 			for j in range(min(WORDS_FOR_ALLITERATION, i)):
-				score += self.isAlliteration(words[i], words[i - 1 - j])
+				if self.isAlliteration(words[i], words[i - 1 - j]):
+					score += 1
+					break
 
 		# normalize by all words in text
+		'''
+		if score * 1. / len(words) > 0.7:
+			print text
+		'''
 		return score * 1.0 / len(words)
 
-	def countNasals(self, text):
+	def countPhonemes(self, text, phonemeSet):
 		words = getWords(text)
 		score = 0
+		total_phonemes = 0
 		for i in range(len(words)):
-			phonemes = self.rhymeDict.get(words[i],None):
+			phonemes = self.rhymeDict.get(words[i],None)
 			if phonemes != None:
+				total_phonemes += len(phonemes)
 				for phon in phonemes:
-					if phon in NASALS_AND_LIQUIDS:
+					if phon.upper() in phonemeSet:
 						score += 1
-				
-		# normalize by all words in text
-		return score * 1.0 / len(words)
-
-	def countFricatives(self, text):
-		words = getWords(text)
-		score = 0
-		for i in range(len(words)):
-			phonemes = self.rhymeDict.get(words[i],None):
-			if phonemes != None:
-				for phon in phonemes:
-					if phon in FRICATIVES:
-						score += 1
-				
-		# normalize by all words in text
-		return score * 1.0 / len(words)
-
-	def countStops(self, text):
-		words = getWords(text)
-		score = 0
-		for i in range(len(words)):
-			phonemes = self.rhymeDict.get(words[i],None):
-			if phonemes != None:
-				for phon in phonemes:
-					if phon in STOPS:
-						score += 1
-				
-		# normalize by all words in text
-		return score * 1.0 / len(words)
+      		# normalize by all words in text
+		return score * 1.0 / total_phonemes
 
 		
 
@@ -302,9 +285,10 @@ class PoemModel():
 		poemFeatures["perfectRhymeScore"] = perfectRhyme
 		poemFeatures["slantRhymeScore"] = slantRhyme
 		poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
-		poemFeatures["proportionOfNasals"] = self.countNasals(text)
-		poemFeatures["proportionOfFricatives"] = self.countFricatives(text)
-		poemFeatures["proportionOfStops"] = self.countStops(text)
+		poemFeatures["proportionOfNasals"] = self.countPhonemes(text,NASALS)
+		poemFeatures["proportionOfFricatives"] = self.countPhonemes(text,FRICATIVES)
+		poemFeatures["proportionOfStops"] = self.countPhonemes(text,STOPS)
+		poemFeatures["proportionOfLiquids"] = self.countPhonemes(text,LIQUIDS)
 
 
 	def getSentimentFeatures(self, poemFeatures, text):

@@ -37,7 +37,7 @@ def makePlots(xDict, yDict):
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
     plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w', edgecolor='k')
     for index, feature in enumerate(next(iter(xDict.values())).keys()):
-        plt.subplot(3, 4, 1 + index)
+        plt.subplot(4, 4, 1 + index)
         plotFeatureVsScore(xDict, yDict, feature)
     plt.savefig("feature_scatter.jpg", format="jpg")
 
@@ -73,9 +73,9 @@ if __name__ == "__main__":
     poems = m.poems
     print "Finding y-values..."
     # scores = getPoemScores() # plot voter scores
-    # scores = getAffectRatios()  # plot affect ratios
+    scores = getAffectRatios()  # plot affect ratios
     # scores = getAverageCommentLength()  # plot average comment length
-    scores = getAverageAffectWordPerComment()  
+    # scores = getAverageAffectWordPerComment()  
     makePlots(poems, scores)
     # blowUpPlots(poems, scores)
 
