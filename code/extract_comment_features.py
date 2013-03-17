@@ -117,19 +117,19 @@ def getTopAffectRatioComments():
 		comments = []
 		for filename, text in getCommentSets(True).items():
 			for comment in text:
-				comments.append((getAffectRatio(comment), comment))
+				comments.append((getAffectRatio(comment), comment, re.findall(makeRegexFromList(affectWordList), ' '.join(getWords(comment)))))
 		pickle.dump(comments, open(AFFECT_RATIO_PER_COMMENT_DICT, "w+"))
 
 	print "Sorting comments"
-	comments = sorted(comments, key=lambda (x,y): -x)
+	comments = sorted(comments, key=lambda (x,y,z): -x)
 	printNum = 20
 	burnIn = 1000
 	print "Highest affect ratios:"
 	for i in range(printNum):
-		print "%0.2f\t%s" % comments[i + burnIn]
+		print comments[i + burnIn]
 	print "Lowest affect ratios:"
 	for i in range(printNum):
-		print "%0.2f\t%s" % comments[-i-1 - burnIn]
+		print comments[-i-1 - burnIn]
 
 	return comments
 

@@ -67,17 +67,17 @@ def makeHistogram():
 
 
 if __name__ == "__main__":
-    # # scatter plots
-    # print "Extracting features..."
-    # m = getPoemModel()
-    # poems = m.poems
-    # print "Finding y-values..."
-    # # scores = getPoemScores() # plot voter scores
-    # # scores = getAffectRatios()  # plot affect ratios
-    # scores = getAverageCommentLength()  # plot average comment length
-    # # scores = getAverageAffectWordPerComment()  
-    # makePlots(poems, scores)
-    # # blowUpPlots(poems, scores)
+    # scatter plots
+    print "Extracting features..."
+    m = getPoemModel()
+    poems = m.poems
+    print "Finding y-values..."
+    # scores = getPoemScores() # plot voter scores
+    # scores = getAffectRatios()  # plot affect ratios
+    scores = getAverageCommentLength()  # plot average comment length
+    # scores = getAverageAffectWordPerComment()  
+    makePlots(poems, scores)
+    # blowUpPlots(poems, scores)
 
     # # make histogram
     # makeHistogram()
