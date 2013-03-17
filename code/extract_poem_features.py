@@ -7,6 +7,7 @@ PoemModel object. To obtain a dictionary of these features (maps filename
 import sys
 import re
 import pickle
+import nrc_intensity
 from os.path import isfile
 from os import listdir, remove
 from math import log
@@ -277,8 +278,6 @@ class PoemModel():
 						score += 1
       		# normalize by all words in text
 		return score * 1.0 / total_phonemes
-
-		
 
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)

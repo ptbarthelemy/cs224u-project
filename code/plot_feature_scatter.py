@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from extract_poem_features import getPoemModel
-from poem_predict_rating import getPoemScores
+from poem_predict_rating import (getPoemScores, runPredictCV)
 from extract_comment_features import (getAffectRatios,
     getAffectHistograms, getAverageCommentLength,
-    getAverageAffectWordPerComment, getWordCountAffectCount)
+    getAverageAffectWordPerComment, getWordCountAffectCount,
+    getLogAverageCommentLength)
 
 
 def plotFeatureVsScore(poems, scores, feature):
@@ -32,14 +33,14 @@ def plotFeatureVsScore(poems, scores, feature):
 
     print feature, " correlation: %0.3f pvalue: %0.3f" % (correl, pearP)
 
-def makePlots(xDict, yDict):
+def makePlots(xDict, yDict, filename="feature_scatter.jpg"):
     # xDict is a dict of dicts, the latter or which map feature to value
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
     plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w', edgecolor='k')
     for index, feature in enumerate(next(iter(xDict.values())).keys()):
-        plt.subplot(4, 4, 1 + index)
+        plt.subplot(5, 6, 1 + index)
         plotFeatureVsScore(xDict, yDict, feature)
-    plt.savefig("feature_scatter.jpg", format="jpg")
+    plt.savefig(filename, format="jpg")
 
 def blowUpPlots(xDict, yDict):
     useFeatures = ['posWords', 'conWords', 'typeTokenRatio']
@@ -67,22 +68,64 @@ def makeHistogram():
 
 
 if __name__ == "__main__":
-    # scatter plots
-    print "Extracting features..."
-    m = getPoemModel()
-    poems = m.poems
-    print "Finding y-values..."
-    # scores = getPoemScores() # plot voter scores
-    scores = getAffectRatios()  # plot affect ratios
-    # scores = getAverageCommentLength()  # plot average comment length
-    # scores = getAverageAffectWordPerComment()  
-    makePlots(poems, scores)
-    # blowUpPlots(poems, scores)
+    # # scatter plots
+    # print "Extracting features..."
+    # m = getPoemModel()
+    # poems = m.poems
+    # print "Finding y-values..."
+    # # scores = getPoemScores() # plot voter scores
+    # scores = getAffectRatios()  # plot affect ratios
+    # # scores = getAverageCommentLength()  # plot average comment length
+    # # scores = getAverageAffectWordPerComment()  
+    # makePlots(poems, scores)
+    # # blowUpPlots(poems, scores)
 
-    # # make histogram
-    # makeHistogram()
+    # """
+    # Experiment 0:
+    # Identify correlation of features with aspect ratios. We can predict
+    # this with about 30% reduction in error over the baseline.
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getAffectRatios()  # plot average comment length
+    # # makePlots(poems, scores, "../experiments/exp00.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
 
-    # # make scatter plot about comment length vs. affect ratio
+    # """
+    # Experiment 1:
+    # Make scatter plot about comment length vs. affect ratio. This plot shows
+    # that increasing comment length does result in a lower affect ratio.
+    # However, if the change in affect ratio was caused by a change in comment
+    # length, then we should be able to predict comment length.
+    # """
     # x, y = zip(*getWordCountAffectCount())
     # plt.scatter(x, y)
-    # plt.show()
+    # plt.ylabel("affect ratio")
+    # plt.xlabel("comment length (# words)")
+    # plt.savefig("../experiments/exp01.jpg", format="jpg")
+
+    # """
+    # Experiment 2:
+    # If comment length is the driver of affect ratio, we should find better
+    # correlations with comment length. However, we cannot predict this very well.
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getAverageCommentLength()  # plot average comment length
+    # # makePlots(poems, scores, "../experiments/exp02.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 3:
+    # We can predict log of average comment length with 10% reduction in error
+    # over baseline (better than average comment length), but this is still worse
+    # than predicting the affect ratio. Why?
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getLogAverageCommentLength()  # plot average comment length
+    # # makePlots(poems, scores, "../experiments/exp02.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)

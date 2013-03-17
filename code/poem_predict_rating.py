@@ -14,6 +14,7 @@ from extract_comment_features import (getAffectRatios,
 
 # USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
 USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+# USE_FEATURE_LIST = ['typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids']
 META_DIRECTORY = "../data/meta"
 
 
@@ -30,10 +31,10 @@ def getPoemScores():
             scores[filename] = getScore(f.read())
     return scores
 
-def filterFeatures(featureDict):
+def filterFeatures(featureDict, useFeatureList):
     # could change this to return all
     return dict((key, val) for key,val in featureDict.items()
-        if key in USE_FEATURE_LIST)
+        if key in useFeatureList)
 
 def tenFold(features, scores, featureNames):
     rssTest = []
@@ -91,19 +92,9 @@ def tenFold(features, scores, featureNames):
         ((benchmarkTestError - testError) * 100/ benchmarkTestError))
     print "------------------------------------------------"
 
-        
-if __name__ == "__main__":
-    dataFileName = "data.list"
 
+def runPredictCV(poems, scores, useFeatureList=USE_FEATURE_LIST):
     print "Extracting features..."
-    poems = getPoemModel().poems
-
-    # try to predict poem score or affect ratio
-    # scores = getPoemScores()
-    scores = getAffectRatios()
-    # scores = getAverageCommentLength()
-
-    print "Finding metadata info..."
     filenames = poems.keys()[:]
     shuffle(filenames) # don't want all of the good ones to show up first
     featureArr = []
@@ -122,7 +113,7 @@ if __name__ == "__main__":
             continue
 
         scoreArr.append(score)
-        featureArr.append(filterFeatures(featureSet))
+        featureArr.append(filterFeatures(featureSet, useFeatureList))
 
         # # print featureArr for specific poem
         # print "poem", f
@@ -135,3 +126,11 @@ if __name__ == "__main__":
 
     print "Performing regression using %d data points..." % len(scoreArr)
     tenFold(featureArr, scoreArr, featureNames)
+
+
+if __name__ == "__main__":
+    poems = getPoemModel().poems
+    # scores = getPoemScores()
+    # scores = getAverageCommentLength()
+    scores = getAffectRatios()
+    runPredictCV(poems, scores)

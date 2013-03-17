@@ -5,6 +5,7 @@ from os.path import isfile
 from os import listdir, remove
 from parse_realliwc import parseRealLIWC as liwc
 from nltk import corpus
+from math import log
 
 MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
@@ -65,6 +66,13 @@ def getAverageCommentLength():
 	for filename, text in getCommentSets(True).items():
 		average = sum([len(getWords(a)) for a in text]) * 1.0 / len(text)
 		result[filename] = average
+	return result
+
+def getLogAverageCommentLength():
+	result = {}
+	for filename, text in getCommentSets(True).items():
+		average = sum([len(getWords(a)) for a in text]) * 1.0 / len(text)
+		result[filename] = log(average)
 	return result
 
 def getAverageAffectWordPerComment():
