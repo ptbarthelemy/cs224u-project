@@ -11,7 +11,8 @@ COMMENT_DIR = "../data/extracted_comments/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
 NRC_FILE = '../data/NRC-lexicon.txt'
-IGNORE_FILES = ["039" # someone added wikipedia articles as comments
+IGNORE_FILES = ["039", # someone added wikipedia articles as comments
+		"411", "447","466" # lots of loves
 	]
 
 stopwordList = corpus.stopwords.words('english')
@@ -93,7 +94,7 @@ def getAffectRatio(text):
 		return 0
 	newText = ' '.join(words)
 	affectWordRegex = makeRegexFromList(affectWordList)
-	return len(re.findall(affectWordRegex, newText)) * 1.0 / len(words)
+	return len(re.findall(affectWordRegex, newText)) * 100.0 / len(words)
 
 def getAffectRatios():
 	if isfile(AFFECT_RATIO_DICT):
@@ -168,4 +169,6 @@ def getAffectHistograms():
 	return affectHist
 
 if __name__ == '__main__':
-	getTopAffectRatioComments()
+	print getAverageCommentLength()
+	print getAverageAffectWordPerComment()
+
