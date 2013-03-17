@@ -8,10 +8,13 @@ from random import shuffle
 import pickle
 from os.path import isfile
 
-from extract_comment_features import getAffectRatios
+from extract_comment_features import (getAffectRatios,
+    getAffectHistograms, getAverageCommentLength,
+    getAverageAffectWordPerComment)
 
 # USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
-USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio']
+# USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio']
+USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio', 'perfectRhymeScore']
 META_DIRECTORY = "../data/meta"
 
 
@@ -99,6 +102,7 @@ if __name__ == "__main__":
     # try to predict poem score or affect ratio
     # scores = getPoemScores()
     scores = getAffectRatios()
+    # scores = getAverageCommentLength()
 
     print "Finding metadata info..."
     filenames = poems.keys()[:]
@@ -109,7 +113,7 @@ if __name__ == "__main__":
         score = scores.get(filename, None)
         if score is None:
             # skip poems without ratings
-            print "  no rating for", filename
+            print "  no score for", filename
             continue 
 
         featureSet = poems.get(filename, None)

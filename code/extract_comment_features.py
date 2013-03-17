@@ -10,7 +10,6 @@ MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
-NRC_CATEGORIES = ['anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust']
 NRC_FILE = '../data/NRC-lexicon.txt'
 IGNORE_FILES = ["039" # someone added wikipedia articles as comments
 	]
@@ -75,6 +74,18 @@ def getAverageAffectWordPerComment():
 		result[filename] = average
 	return result
 
+def getWordCountAffectCount():
+	result = []
+	for filename, text in getCommentSets(True).items():
+		for comment in text:
+			words = getWords(comment)
+			numWords = len(words)
+			if numWords == 0:
+				continue
+			numAffectWords = len(re.findall(makeRegexFromList(affectWordList), ' '.join(words))) * 1.0 / numWords
+			result.append((numWords, numAffectWords))
+	return result
+
 def getAffectRatio(text):
 	count = 0
 	words = getWords(text) # find words, filter out stopwords
@@ -112,12 +123,13 @@ def getTopAffectRatioComments():
 	print "Sorting comments"
 	comments = sorted(comments, key=lambda (x,y): -x)
 	printNum = 20
+	burnIn = 1000
 	print "Highest affect ratios:"
 	for i in range(printNum):
-		print "%0.2f\t%s" % comments[i]
+		print "%0.2f\t%s" % comments[i + burnIn]
 	print "Lowest affect ratios:"
 	for i in range(printNum):
-		print "%0.2f\t%s" % comments[-i-1]
+		print "%0.2f\t%s" % comments[-i-1 - burnIn]
 
 	return comments
 
@@ -156,12 +168,4 @@ def getAffectHistograms():
 	return affectHist
 
 if __name__ == '__main__':
-	print getAverageCommentLength()
-	print getAverageAffectWordPerComment()
-
-	# m = getCommentSets()
-	# print m['111'][0]
-	# count = 0
-	# for value in m.values():
-	# 	count += len(value)
-	# print count
+	getTopAffectRatioComments()

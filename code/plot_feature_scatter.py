@@ -5,9 +5,9 @@ import numpy as np
 
 from extract_poem_features import getPoemModel
 from poem_predict_rating import getPoemScores
-from extract_comment_features import \
-    (getAffectRatios, getAffectHistograms, getAverageCommentLength,
-        getAverageAffectWordPerComment)
+from extract_comment_features import (getAffectRatios,
+    getAffectHistograms, getAverageCommentLength,
+    getAverageAffectWordPerComment, getWordCountAffectCount)
 
 
 def plotFeatureVsScore(poems, scores, feature):
@@ -67,17 +67,22 @@ def makeHistogram():
 
 
 if __name__ == "__main__":
-    # scatter plots
-    print "Extracting features..."
-    m = getPoemModel()
-    poems = m.poems
-    print "Finding y-values..."
-    # scores = getPoemScores() # plot voter scores
-    # scores = getAffectRatios()  # plot affect ratios
+    # # scatter plots
+    # print "Extracting features..."
+    # m = getPoemModel()
+    # poems = m.poems
+    # print "Finding y-values..."
+    # # scores = getPoemScores() # plot voter scores
+    # # scores = getAffectRatios()  # plot affect ratios
     # scores = getAverageCommentLength()  # plot average comment length
-    scores = getAverageAffectWordPerComment()  
-    makePlots(poems, scores)
-    # blowUpPlots(poems, scores)
+    # # scores = getAverageAffectWordPerComment()  
+    # makePlots(poems, scores)
+    # # blowUpPlots(poems, scores)
 
     # # make histogram
     # makeHistogram()
+
+    # # make scatter plot about comment length vs. affect ratio
+    # x, y = zip(*getWordCountAffectCount())
+    # plt.scatter(x, y)
+    # plt.show()
