@@ -1,10 +1,20 @@
 import os, sys, operator
 
 def printEmotiveWordScores(dict, outFileName):
-  sorted_dict = sorted(dict.iteritems(), key = operator.itemgetter(1))
+  sorted_dict = sorted(dict.iteritems(), key = operator.itemgetter(1), reverse = True)
   f = open(outFileName, 'w')
   print >> f, '\n'.join(['%s\t%f' % (k,v) for (k,v) in sorted_dict])
   f.close()
+
+def reverseScore(dict):
+  for d in dict:
+    dict[d] = 1-dict[d]
+  return dict
+
+def bimodalScore(dict):
+  for d in dict:
+    dict[d] = abs(dict[d] - 0.5) * 2
+  return dict
 
 f = open('../data/NRC-lexicon.txt', 'r')
 nrc = f.readlines()
@@ -39,6 +49,13 @@ for line in nrc:
 #     cate[tuple[1]].add('\t'.join([tuple[0], tuple[2]]))
 #     score = float(tuple[2]) 
 
+cate['anger'] = reverseScore(cate['anger'])
+cate['disgust'] = reverseScore(cate['disgust'])
+cate['fear'] = reverseScore(cate['fear'])
+cate['negative'] = reverseScore(cate['negative'])
+cate['sadness'] = reverseScore(cate['sadness'])
+cate['anticipation'] = bimodalScore(cate['anticipation'])
+cate['surprise'] = bimodalScore(cate['surprise'])
 
 printEmotiveWordScores(cate['anger'], '../data/anger_rt.txt')
 printEmotiveWordScores(cate['anticipation'], '../data/anticipation_rt.txt')
