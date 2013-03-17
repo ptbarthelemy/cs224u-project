@@ -292,9 +292,11 @@ class PoemModel():
 
 
 	def getSentimentFeatures(self, poemFeatures, text):
-		words = getWords(text)
-
+		words = getWords(text)	
+		cate = nrc_intensity.processNrcWords()
+		
 		posWords, negWords, conWords, absWords = [0] * 4
+		anger, anticipation, disgust, fear, joy, neg, pos, sadness, surprise, trust = [0] * 10
 		for word in words:
 			if word in self.wordsPositive:
 				posWords += 1
@@ -304,11 +306,39 @@ class PoemModel():
 				absWords += 1
 			elif word in self.wordsConcrete:
 				conWords += 1
+			if word in cate['anger']:
+			  anger += cate['anger'][word]
+			if word in cate['anticipation']:
+			  anticipation += cate['anticipation'][word]
+			if word in cate['disgust']:
+			  disgust += cate['disgust'][word]
+			if word in cate['fear']:
+			  fear += cate['fear'][word]
+			if word in cate['joy']:
+			  joy += cate['joy'][word]
+			if word in cate['sadness']:
+			  sadness += cate['sadness'][word]
+			if word in cate['surprise']:
+			  surprise += cate['surprise'][word]
+			if word in cate['trust']:
+			  trust += cate['trust'][word]
+			if word in cate['positive']:
+			  pos += cate['positive'][word]
+			if word in cate['negative']:
+			  neg += cate['negative'][word]
 
 		poemFeatures["posWords"] = posWords * 1.0 / len(words)
 		poemFeatures["negWords"] = negWords * 1.0 / len(words)
 		poemFeatures["conWords"] = conWords * 1.0 / len(words)
 		poemFeatures["absWords"] = absWords * 1.0 / len(words)
+		poemFeatures["anger"] = anger / len(words)
+		poemFeatures["anticipation"] = anticipation / len(words)
+		poemFeatures["fear"] = fear / len(words)
+		poemFeatures["joy"] = joy / len(words)
+		poemFeatures["sadness"] = sadness / len(words)
+		poemFeatures["surprise"] = surprise / len(words)
+		poemFeatures["trust"] = trust / len(words)
+		poemFeatures["disgust"] = disgust / len(words)
 
 
 if __name__ == "__main__":
