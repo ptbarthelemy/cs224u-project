@@ -219,7 +219,4 @@ def getAffectHistograms():
 	return affectHist
 
 if __name__ == '__main__':
-	# print getAverageCommentLength()
-	# print getAverageAffectWordPerComment()
-
 	getTopAffectRatioComments(20, 1000)
