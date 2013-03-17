@@ -20,6 +20,10 @@ POEM_DIR = "../data/extracted_poems/"
 RHYME_DICT_PATH = "../data/rhyme-dict.txt"
 HGI_PATH = "../data/wordlists/harvard-general-inquirer-basic.csv"
 SAVED_MODEL = "poem_model.p"
+NASALS_AND_LIQUIDS = set(['M','EM','N','EN','NG','ENG','L','EL','R','DX','NX','Y','W','Q']) # all nasals, liquids, and semivowels
+FRICATIVES = set(['F','V','TH','DH','S','Z','SH','ZH','HH','CH','JH']) # all fricatives and affricates
+STOPS = set(['P','B','T','D','K','G'])
+
 
 def getWords(text):
 	return re.findall("[\w']+", text)
@@ -252,11 +256,55 @@ class PoemModel():
 		# normalize by all words in text
 		return score * 1.0 / len(words)
 
+	def countNasals(self, text):
+		words = getWords(text)
+		score = 0
+		for i in range(len(words)):
+			phonemes = self.rhymeDict.get(words[i],None):
+			if phonemes != None:
+				for phon in phonemes:
+					if phon in NASALS_AND_LIQUIDS:
+						score += 1
+				
+		# normalize by all words in text
+		return score * 1.0 / len(words)
+
+	def countFricatives(self, text):
+		words = getWords(text)
+		score = 0
+		for i in range(len(words)):
+			phonemes = self.rhymeDict.get(words[i],None):
+			if phonemes != None:
+				for phon in phonemes:
+					if phon in FRICATIVES:
+						score += 1
+				
+		# normalize by all words in text
+		return score * 1.0 / len(words)
+
+	def countStops(self, text):
+		words = getWords(text)
+		score = 0
+		for i in range(len(words)):
+			phonemes = self.rhymeDict.get(words[i],None):
+			if phonemes != None:
+				for phon in phonemes:
+					if phon in STOPS:
+						score += 1
+				
+		# normalize by all words in text
+		return score * 1.0 / len(words)
+
+		
+
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)
 		poemFeatures["perfectRhymeScore"] = perfectRhyme
 		poemFeatures["slantRhymeScore"] = slantRhyme
 		poemFeatures["alliterationScore"] = self.getPoemAllitScore(text)
+		poemFeatures["proportionOfNasals"] = self.countNasals(text)
+		poemFeatures["proportionOfFricatives"] = self.countFricatives(text)
+		poemFeatures["proportionOfStops"] = self.countStops(text)
 
 
 	def getSentimentFeatures(self, poemFeatures, text):
