@@ -8,7 +8,9 @@ from poem_predict_rating import (getPoemScores, runPredictCV)
 from extract_comment_features import (getAffectRatios,
     getAffectHistograms, getAverageCommentLength,
     getAverageAffectWordPerComment, getWordCountAffectCount,
-    getLogAverageCommentLength)
+    getLogAverageCommentLength, getNumberOfComments,
+    getTopAffectRatioComments, getCommentTypeTokenRatio,
+    getNRCRatios)
 
 
 def plotFeatureVsScore(poems, scores, feature):
@@ -103,7 +105,25 @@ if __name__ == "__main__":
     # plt.scatter(x, y)
     # plt.ylabel("affect ratio")
     # plt.xlabel("comment length (# words)")
+    # _, pearP = pearsonr(x, y)
+    # label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP    
+    # plt.scatter(x, y, label=label)
+    # plt.legend(loc=3)
     # plt.savefig("../experiments/exp01.jpg", format="jpg")
+
+    # """
+    # Experiment 1.1:
+    # The relationship might be better represented with word count on a log
+    # scale. This plot shows that the two values are strongly correlated.
+    # """
+    # x, y = zip(*getWordCountAffectCount(True))
+    # plt.ylabel("affect ratio")
+    # plt.xlabel("comment length (# words)")
+    # _, pearP = pearsonr(x, y)
+    # label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP    
+    # plt.scatter(x, y, label=label)
+    # plt.legend(loc=3)
+    # plt.savefig("../experiments/exp01.1.jpg", format="jpg")
 
     # """
     # Experiment 2:
@@ -117,15 +137,130 @@ if __name__ == "__main__":
     # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
     # runPredictCV(poems, scores, useFeatureList)
 
+    """
+    Experiment 3:
+    We can predict log of average comment length with 10% reduction in error
+    over baseline (better than average comment length), but this is still worse
+    than predicting the affect ratio. Why? Is there another descriptive feature
+    of the comments that we can better describe?
+
+    Are the comments with different affect ratios saying the same things
+    differently or saying different things?
+    """
+    m = getPoemModel()
+    poems = m.poems
+    scores = getLogAverageCommentLength()
+    makePlots(poems, scores, "../experiments/exp03.jpg")
+    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    runPredictCV(poems, scores, useFeatureList)
+
     # """
-    # Experiment 3:
-    # We can predict log of average comment length with 10% reduction in error
-    # over baseline (better than average comment length), but this is still worse
-    # than predicting the affect ratio. Why?
+    # Experiment 4:
+    # Can we predict poem rating? No, it seems like we cannot predict it so well.
     # """
     # m = getPoemModel()
     # poems = m.poems
-    # scores = getLogAverageCommentLength()  # plot average comment length
-    # # makePlots(poems, scores, "../experiments/exp02.jpg")
+    # scores = getPoemScores()
+    # makePlots(poems, scores, "../experiments/exp04.jpg")
     # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
     # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 5:
+    # Can we predict the number of responses? Not so well.
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getNumberOfComments()
+    # makePlots(poems, scores, "../experiments/exp05.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 6:
+    # Can we predict the log of the number of responses? Not much better.
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getNumberOfComments(True) # use log
+    # makePlots(poems, scores, "../experiments/exp06.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 7:
+    # What is the difference in the nature of comments with high and low affect
+    # ratios?
+
+    # high affect ratio implies:
+    # - shorter comments
+    # - less spanish
+    # - less analysis and observation and more unexplained praise and dispraise
+    #     e.g. high: what beautiful use of words. lovely poem.
+    #          high: you two are a couple of losers.
+    #           low: christ's life is plausible. however, consider the theme of ambition: what it is; whether it is neutral or with the power to possess good or evil; and its source. then think to how 'we people on the pavement' took to a person whose skeletons were not on public display.
+    #           low: this is poetic therapy at its very best. life-changing and liberating. i can't stop reading it...
+    #     - how else can we describe these comments? is there a computational way to separate them?
+    #         - length is of course a factor. what about semantics?
+    # """
+    # # getTopAffectRatioComments(20, 2000)
+    # # getTopAffectRatioComments(20, 3000)
+    # # getTopAffectRatioComments(20, 4000)
+    # getTopAffectRatioComments(20, 5000)
+
+    # """
+    # Experiment 8:
+    # If high affect ratio comments are less rich in their analysis/observation,
+    # does this imply that they have a lower type-token ratio? Actually, this
+    # cannot be well predicted. (~0% reduction in accuracy)
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getCommentTypeTokenRatio()
+    # makePlots(poems, scores, "../experiments/exp08.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 8.1:
+    # Repeat exp 8, but sample from all of the words. This should control for the
+    # fact that longer documents tend to have lower type-token ratios. We can 
+    # predict this with ~15% reduction in error.
+
+    # This suggests that "richness" of response can be categorized by the type-
+    # token ratio, though this is not so easily predicted as affect ratio. With
+    # experiment 3, we know that we can predict the log of comment length with
+    # ~10% accuracy.
+
+    # Taking note of the sign of the correlation of each variable, this gives us
+    # a definition of 'richness' that includes:
+    #     - longer comments
+    #     - higher type-token ratio
+    #     - lower affect ratio
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getCommentTypeTokenRatio(100) # sample words
+    # makePlots(poems, scores, "../experiments/exp08.1.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+    # """
+    # Experiment 9:
+    # What is the difference in predicting the affect ratio with predicing the
+    # NRC ratio? Wouldn't this also capture emotion words? We cannot predict this
+    # as well. (Only ~3% over baseline.)
+    # """
+    # m = getPoemModel()
+    # poems = m.poems
+    # scores = getNRCRatios()
+    # makePlots(poems, scores, "../experiments/exp09.jpg")
+    # useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
+    # runPredictCV(poems, scores, useFeatureList)
+
+
+
+    """
+    Questions
+    - Is there correlation between affect ratio and poem rating?
+    """

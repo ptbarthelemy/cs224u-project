@@ -12,9 +12,7 @@ from extract_comment_features import (getAffectRatios,
     getAffectHistograms, getAverageCommentLength,
     getAverageAffectWordPerComment)
 
-# USE_FEATURE_LIST = ['typeTokenRatio', 'slantRhymeScore']
 USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-# USE_FEATURE_LIST = ['typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids']
 META_DIRECTORY = "../data/meta"
 
 
