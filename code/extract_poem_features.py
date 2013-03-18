@@ -7,6 +7,7 @@ PoemModel object. To obtain a dictionary of these features (maps filename
 import sys
 import re
 import pickle
+import nrc_intensity
 from os.path import isfile
 from os import listdir, remove
 from math import log
@@ -258,10 +259,6 @@ class PoemModel():
 					break
 
 		# normalize by all words in text
-		'''
-		if score * 1. / len(words) > 0.7:
-			print text
-		'''
 		return score * 1.0 / len(words)
 
 	def countPhonemes(self, text, phonemeSet):
@@ -275,10 +272,9 @@ class PoemModel():
 				for phon in phonemes:
 					if phon.upper() in phonemeSet:
 						score += 1
-      		# normalize by all words in text
+      	
+      	# normalize by all words in text
 		return score * 1.0 / total_phonemes
-
-		
 
 	def getPoeticFeatures(self, poemFeatures, text):
 		perfectRhyme, slantRhyme = self.getPoemRhyme(text)
@@ -344,17 +340,3 @@ class PoemModel():
 if __name__ == "__main__":
 	m = getPoemModel()
 	
-	# print m.poems
-
-	# # diagnostic tests
-	# rhymeList = sorted(m.poems.keys(), key=lambda x: -m.poems[x]["perfectRhymeScore"])
-	# print "best rhyming poems"
-	# for a in rhymeList[:5]:
-	# 	print a, m.poems[a]["perfectRhymeScore"]
-
-	# print "worst rhyming poems"
-	# for a in rhymeList[-5:]:
-	# 	print a, m.poems[a]["perfectRhymeScore"]
-
-	# print m.isPerfectRhyme("sentence", "repentance")
-	# print m.isSlantRhyme("sentence", "repentance")

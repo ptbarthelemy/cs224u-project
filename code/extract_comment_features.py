@@ -5,11 +5,14 @@ from os.path import isfile
 from os import listdir, remove
 from parse_realliwc import parseRealLIWC as liwc
 from nltk import corpus
+from math import log
+from random import sample
 
 MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/extracted_comments/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
+NRC_RATIO_DICT = "nrc_ratio.p"
 NRC_FILE = '../data/NRC-lexicon.txt'
 IGNORE_FILES = ["039", # someone added wikipedia articles as comments
 		"411", "447","466" # lots of loves
@@ -67,6 +70,13 @@ def getAverageCommentLength():
 		result[filename] = average
 	return result
 
+def getLogAverageCommentLength():
+	result = {}
+	for filename, text in getCommentSets(True).items():
+		average = sum([len(getWords(a)) for a in text]) * 1.0 / len(text)
+		result[filename] = log(average)
+	return result
+
 def getAverageAffectWordPerComment():
 	result = {}
 	for filename, text in getCommentSets(True).items():
@@ -75,7 +85,34 @@ def getAverageAffectWordPerComment():
 		result[filename] = average
 	return result
 
-def getWordCountAffectCount():
+def getNumberOfComments(useLog=False):
+	result = {}
+	for filename, text in getCommentSets(True).items():
+		result[filename] = len(text) if not useLog else log(len(text))
+	return result
+
+def getCommentTypeTokenRatio(sampling=0):
+	result = {}
+	skipcount = 0
+	for filename, text in getCommentSets(False).items():
+		words = getWords(text[0])
+		if sampling > 0:
+			if len(words) < sampling:
+				skipcount += 1
+				continue
+			words = sample(words, sampling)
+			result[filename] = len(set(words)) * 1.0 / len(words)
+		else:
+			numTokens = len(words)
+			if numTokens == 0:
+				skipcount += 1
+				continue
+			numTypes = len(set(words))
+			result[filename] = numTypes * 1.0 / numTokens
+	print "Skipped %d files due to insufficient commentary." % skipcount
+	return result
+
+def getWordCountAffectCount(useLog=False):
 	result = []
 	for filename, text in getCommentSets(True).items():
 		for comment in text:
@@ -84,17 +121,19 @@ def getWordCountAffectCount():
 			if numWords == 0:
 				continue
 			numAffectWords = len(re.findall(makeRegexFromList(affectWordList), ' '.join(words))) * 1.0 / numWords
+			if useLog:
+				numWords = log(numWords)
 			result.append((numWords, numAffectWords))
 	return result
 
-def getAffectRatio(text):
+def getWordRatio(text, wordlist):
 	count = 0
 	words = getWords(text) # find words, filter out stopwords
 	if len(words) == 0:
 		return 0
 	newText = ' '.join(words)
-	affectWordRegex = makeRegexFromList(affectWordList)
-	return len(re.findall(affectWordRegex, newText)) * 100.0 / len(words)
+	regex = makeRegexFromList(wordlist)
+	return len(re.findall(regex, newText)) * 100.0 / len(words)
 
 def getAffectRatios():
 	if isfile(AFFECT_RATIO_DICT):
@@ -104,12 +143,25 @@ def getAffectRatios():
 	print "Creating affect ratio dict..."
 	affectRatios = {}
 	for filename, text in getCommentSets(False).items():
-		affectRatios[filename] = getAffectRatio(text[0])
+		affectRatios[filename] = getWordRatio(text[0], affectWordList)
 
 	pickle.dump(affectRatios, open(AFFECT_RATIO_DICT, "w+"))
 	return affectRatios
 
-def getTopAffectRatioComments():
+def getNRCRatios():
+	if isfile(NRC_RATIO_DICT):
+		print "Loading affect ratio dict from file..."
+		return pickle.load(open(NRC_RATIO_DICT, "r"))
+
+	print "Creating NRC ratio dict..."
+	result = {}
+	for filename, text in getCommentSets(False).items():
+		result[filename] = getNRCRatio(text[0], getNRCLexicon().keys())
+
+	pickle.dump(result, open(NRC_RATIO_DICT, "w+"))
+	return result
+
+def getTopAffectRatioComments(printNum, burnIn):
 	if isfile(AFFECT_RATIO_PER_COMMENT_DICT):
 		print "Loading affect ratio dict from file..."
 		comments = pickle.load(open(AFFECT_RATIO_PER_COMMENT_DICT, "r"))
@@ -123,12 +175,10 @@ def getTopAffectRatioComments():
 
 	print "Sorting comments"
 	comments = sorted(comments, key=lambda (x,y,z): -x)
-	printNum = 20
-	burnIn = 1000
-	print "Highest affect ratios:"
+	print "\nHigher affect ratios:"
 	for i in range(printNum):
 		print comments[i + burnIn]
-	print "Lowest affect ratios:"
+	print "\nLower affect ratios:"
 	for i in range(printNum):
 		print comments[-i-1 - burnIn]
 
@@ -169,6 +219,4 @@ def getAffectHistograms():
 	return affectHist
 
 if __name__ == '__main__':
-	print getAverageCommentLength()
-	print getAverageAffectWordPerComment()
-
+	getTopAffectRatioComments(20, 1000)

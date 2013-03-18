@@ -3,16 +3,9 @@ from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import numpy as np
 
-from extract_poem_features import getPoemModel
-from poem_predict_rating import getPoemScores
-from extract_comment_features import (getAffectRatios,
-    getAffectHistograms, getAverageCommentLength,
-    getAverageAffectWordPerComment, getWordCountAffectCount)
-
 
 def plotFeatureVsScore(poems, scores, feature):
-    x = []
-    y = []
+    x, y = [], []
     for key, value in poems.items():
         if scores.get(key, None) is None:
             continue
@@ -32,14 +25,17 @@ def plotFeatureVsScore(poems, scores, feature):
 
     print feature, " correlation: %0.3f pvalue: %0.3f" % (correl, pearP)
 
-def makePlots(xDict, yDict):
+def makePlots(xDict, yDict, yname="score", filename="feature_scatter.jpg"):
     # xDict is a dict of dicts, the latter or which map feature to value
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
-    plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w', edgecolor='k')
+    plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w',
+        edgecolor='k')
     for index, feature in enumerate(next(iter(xDict.values())).keys()):
-        plt.subplot(4, 4, 1 + index)
+        plt.subplot(5, 6, 1 + index)
         plotFeatureVsScore(xDict, yDict, feature)
-    plt.savefig("feature_scatter.jpg", format="jpg")
+
+    plt.suptitle("features vs. %s" % yname, fontsize=20)
+    plt.savefig(filename, format="jpg")
 
 def blowUpPlots(xDict, yDict):
     useFeatures = ['posWords', 'conWords', 'typeTokenRatio']
@@ -78,11 +74,3 @@ if __name__ == "__main__":
     # scores = getAverageAffectWordPerComment()  
     makePlots(poems, scores)
     # blowUpPlots(poems, scores)
-
-    # # make histogram
-    # makeHistogram()
-
-    # # make scatter plot about comment length vs. affect ratio
-    # x, y = zip(*getWordCountAffectCount())
-    # plt.scatter(x, y)
-    # plt.show()
