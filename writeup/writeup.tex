@@ -53,6 +53,12 @@ Literature in general and poetry in particular present unique challenges for nat
 
 Beyond domain adaptation problems, divergences in structure and language use in poetic texts introduce difficulties for traditional NLP and NLU such as syntactic or semantic parsers, which often rely on some expectation of “well-formedness,” either explicitly or implicitly (such as in training data comprised of only full, “real” sentences). In our project, we are interested in discovering the features of poetic texts that correlate highly with a strong emotional response on the part of the reader. It is a fascinating aspect of poetry that it is often able to deliver a high emotional impact to a reader concisely, and in one sense this is an aspect of poetry that sets it apart from other genres of text. Therefore, our papers selected for this literature review concern work that attempts to confront the aforementioned difficulties of a computational understanding of poetry, and then work that addresses the emotional content of language.
 
+
+\subsection*{Task}
+This work focuses on emotional responses to poetry. For a given poem, we will attempt to identify and extract features which are capable of predicting a distribution over emotional categories seen in the comments responding to the poem. Our task can be divided into two phases: feature extraction for the purpose of describing poems and comment labelling. We will then use a MaxEnt classifier to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions.
+
+
+
 \section{Related Work}
 
 \newcite{kao2012computational} used computational methods to classify aesthetics of contemporary poetry. In particular, they analyzed diction, sound devices (rhyme, alliteration, and assonance), and imagery. As a proxy for a labeling poems as aesthetic or non-aesthetic, Kao and Jurafsky simply used the classes of professional versus amateur, which is expected to closely represent the former two categories with the advantage of having obvious labels.
