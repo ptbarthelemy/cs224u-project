@@ -49,13 +49,13 @@
 \paragraph{}
 \emph{Poetry is when an emotion has found its thought and the thought has found words.}
 \begin{flushright}
---- Robert Frosts\\
+--- Robert Frost\\
 \end{flushright}
 
 
 Literature in general and poetry in particular present unique challenges for natural language understanding systems. Literary scholars often articulate the manner in which the primary purpose of literature is deviance, in some sense, from the common expectations we hold of human language. Raymond Chapman describes literature as ``the art that uses language,'' and Viktor Shklovskij notes that in poetry in particular we consistently find ``material obviously created to remove the automatism of perception.'' In Shklovskij's terms, literature effects a ``defamiliarization'' that surprises, delights, and moves to emotion in a way normal language does not.
 
-Beyond domain adaptation problems, divergences in structure and language use in poetic texts introduce difficulties for traditional NLP and NLU such as syntactic or semantic parsers, which often rely on some expectation of ‚Äúwell-formedness,‚Äù either explicitly or implicitly (such as in training data comprised of only full, ‚Äúreal‚Äù sentences). In our project, we are interested in discovering the features of poetic texts that correlate highly with a strong emotional response on the part of the reader. It is a fascinating aspect of poetry that it is often able to deliver a high emotional impact to a reader concisely, and in one sense this is an aspect of poetry that sets it apart from other genres of text. Therefore, our papers selected for this literature review concern work that attempts to confront the aforementioned difficulties of a computational understanding of poetry, and then work that addresses the emotional content of language.
+It is a fascinating fact about poetry that it is often able to concisely deliver a high emotional impact to its readership, and indeed this is an aspect of poetry that sets it apart from other genres of text. Therefore, in this project we are interested in discovering the features of poetic texts that correlate highly with a strong emotional response.
 
 
 \subsection*{Task}
@@ -67,14 +67,23 @@ This work focuses on emotional responses to poetry. For a given poem, we will at
 
 \newcite{kao2012computational} used computational methods to classify aesthetics of contemporary poetry. In particular, they analyzed diction, sound devices (rhyme, alliteration, and assonance), and imagery. As a proxy for a labeling poems as aesthetic or non-aesthetic, Kao and Jurafsky simply used the classes of professional versus amateur, which is expected to closely represent the former two categories with the advantage of having obvious labels.
 
-Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often “intentionally ambiguous”, attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon “strange” words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary–“varied” meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more “strange” words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
+Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often ÔøΩintentionally ambiguousÔøΩ, attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon ÔøΩstrangeÔøΩ words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabularyÔøΩÔøΩvariedÔøΩ meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more ÔøΩstrangeÔøΩ words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
 
-Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imagery–imagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage “show, don’t tell.”
+Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imageryÔøΩimagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage ÔøΩshow, donÔøΩt tell.ÔøΩ
 
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
 \section{Dataset}
-\subsection*{Data collection}
+For this study, we propose a free-text to free-text framework for analysis. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. Each poem is then associated with the set of free-text responses to that poem from which we extract data to act as the poem's ``response label." Various implementations [wrong word? fix] of these response labels are described later in the paper.
+
+\subsection*{Data Collection}
+For a first pass at data collection, we ran a trial experiment on Amazon's Mechanical Turk service with five ten-line poems. We showed each poem to 20 Turkers and asked them to read and digest its contents. We then asked for them to provide a free-text response describing their personal, subjective emotional reaction to the poem. 
+
+However, upon manual review of the results, we found them to be of roughly similar quality to comments provided on the website PoemHunter.com, and therefore changed our approach for data collection to web-scraping, to allow both for a larger dataset and a more varied selection of poems. We treat the comments for a given poem as our free-text responses for the purposes of this study.
+
+We began by scraping the "Top 500 Poems" section of the website, comprised of poems by professional poets. Since there are many thousands of poems on the site and comments are relatively sparse, these poems offered a high density of comments for collection. It is not clear, however, how these "Top" poems were selected (it is evidently not based upon rating or number of comments), and so this selection has the potential to skew our results.
+
+Therefore, we scraped an additional 25,000 poems from the site by following links to poets in the "Top 500 Poets" list. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems from this set with over 10 comments in response; this requirement cut down this additional data source to only approximately [do exact number?] 500 new poems, each with more than 10 comments.
 
 \subsection*{Corpus Composition}
 
@@ -132,6 +141,8 @@ Our first task was to predict the sentiment distribution of the poem responses. 
 \end{figure*}
 
 \section{Discussion}
+
+
 
 \section{Future work}
 
