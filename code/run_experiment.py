@@ -6,7 +6,7 @@ from extract_comment_features import (getAffectRatios,
     getLogAverageCommentLength, getNumberOfComments,
     getTopAffectRatioComments, getCommentTypeTokenRatio,
     getNRCRatios)
-from make_plot import (makePlots)
+from make_plot import (makePlots, makeHistogram)
 
 
 def exp00():
@@ -187,6 +187,13 @@ def exp09():
     useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
     runPredictCV(poems, scores, useFeatureList)
 
+def exp10():
+    """
+    Make the histogram of NRC words to show how all comments are similarly
+    written.
+    """
+    affectHist = getAffectHistograms()
+    makeHistogram(affectHist, "../experiments/exp10.jpg")
 
 if __name__ == "__main__":
-	exp09()
+	exp10()

@@ -207,7 +207,8 @@ def getAffectHistograms():
 			cats = lexDict.get(word, None)
 			if cats is not None:
 				for cat in cats:
-					hist[cat] = hist.get(cat, 0) + 1
+					# distribute weight across all categories
+					hist[cat] = hist.get(cat, 0) + 1. / len(cats)
 
 		# normalize
 		numWords = len(words)

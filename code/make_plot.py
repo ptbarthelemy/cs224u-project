@@ -47,9 +47,8 @@ def blowUpPlots(xDict, yDict):
         plotFeatureVsScore(xDict, yDict, feature)
         plt.savefig("zoom_%s.jpg" % feature, format="jpg")
 
-def makeHistogram():
-    plt.figure(num=None, figsize=(16, 12), dpi=80)
-    affectHist = getAffectHistograms()
+def makeHistogram(affectHist, filename):
+    plt.figure(num=None, figsize=(12, 6), dpi=80)
     cats = sorted(next(iter(affectHist.values())).keys())
     for hist in affectHist.values():
         plt.plot(range(len(cats)), 
@@ -59,18 +58,8 @@ def makeHistogram():
     plt.ylabel("prevalence")
     plt.xlabel("emotional category")
     plt.xticks(range(len(cats)), cats)
-    plt.savefig("emotional_histograms.jpg", format="jpg")
+    plt.savefig(filename, format="jpg")
 
 
 if __name__ == "__main__":
-    # scatter plots
-    print "Extracting features..."
-    m = getPoemModel()
-    poems = m.poems
-    print "Finding y-values..."
-    # scores = getPoemScores() # plot voter scores
-    scores = getAffectRatios()  # plot affect ratios
-    # scores = getAverageCommentLength()  # plot average comment length
-    # scores = getAverageAffectWordPerComment()  
-    makePlots(poems, scores)
-    # blowUpPlots(poems, scores)
+    pass
