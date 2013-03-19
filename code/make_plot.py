@@ -28,10 +28,10 @@ def plotFeatureVsScore(poems, scores, feature):
 def makePlots(xDict, yDict, yname="score", filename="feature_scatter.jpg"):
     # xDict is a dict of dicts, the latter or which map feature to value
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
-    plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w',
+    plt.figure(num=None, figsize=(20, 12), dpi=80, facecolor='w',
         edgecolor='k')
-    for index, feature in enumerate(next(iter(xDict.values())).keys()):
-        plt.subplot(5, 6, 1 + index)
+    for index, feature in enumerate(sorted(next(iter(xDict.values())).keys())):
+        plt.subplot(4, 6, 1 + index)
         plotFeatureVsScore(xDict, yDict, feature)
 
     plt.suptitle("features vs. %s" % yname, fontsize=20)
@@ -48,7 +48,7 @@ def blowUpPlots(xDict, yDict):
         plt.savefig("zoom_%s.jpg" % feature, format="jpg")
 
 def makeHistogram(affectHist, filename):
-    plt.figure(num=None, figsize=(12, 6), dpi=80)
+    plt.figure(num=None, figsize=(18, 6), dpi=80)
     cats = sorted(next(iter(affectHist.values())).keys())
     for hist in affectHist.values():
         plt.plot(range(len(cats)), 

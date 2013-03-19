@@ -79,7 +79,7 @@ Our task is quite generally defined as the prediction of a human response to poe
 
 \subsection*{Poem Features}
 % TODO: fix citations!
-Poetic features are in part taken from \newcite{kao2012computational}, where they were used to analyze the asthetics of poetry, and Tizoosh et al, where they were used to classify poetry. We can divide them into three groups: orthography, sound device, and sentiment.
+Poetic features are in part taken from \newcite{kao2012computational}, where they were used to analyze the asthetics of poetry, and Tizoosh et al, where they were used to classify poetry. We can divide them into three groups: orthography, sound device, and diction.
 
 \emph{Orthographic Features}
 Orthographic features capture the \emph{shape} of the poems. To decribe this, we used the following features: number of lines, number of stanzas, number of lines per stanzas, number of words per line, and type token ratio.
@@ -92,8 +92,10 @@ In particular, we quantified perfect rhyme, slant rhyme, and alliteration. Perfe
 We capture alliteration by counting the words within a fixed window having the same starting consonant sound. This is an approximation, as alliteration is rather defined as the repetition of stressed consonant sounds, which may include sounds occuring within a word.
 
 Additionally and unlike \shortcite{kao2012computational} and Tizhoosh et al, we added features to quantify the proportion of nasals, fricatives, stops, and liquids. 
-
 % TODO: how do we justify this again?
+
+\emph{Diction}
+% TODO: add HGI words
 
 \subsection*{Comment Features}
 We focus on two main ways of categorizing comment response: sentiment and diction.
@@ -112,17 +114,38 @@ Additionally, we try to categorize the magnitude of the affect response by count
 \section{Experiments}
 
 \subsection{Predicting Sentiment Distribution}
-Our first task was to predict the sentiment distribution of the poem responses. Performance would thus simply be based on the KL divergence of the predicted sentiment distribution and the actual distribution. This proved to be a difficult task, however, as our predicted distribution was no better than simply average distribution over all poems. Further analysis revealed that the word distributions were nearly identical across all poem responses, as shown in Figure~\ref{histogram}.
+Our first task was to predict the sentiment distribution of the poem responses. Performance would thus be based on the KL divergence of the predicted sentiment distribution and the actual distribution. This proved to be a difficult task, however, as our predicted distribution was no better than simply average distribution over all poems. Further analysis revealed that the word distributions are quite similar across all poem responses, as shown in Figure~\ref{histogram}. Notable from this figure, however, is that there is a seemingly large difference in the proportion of affect words, which leads to the next task.
 
 \begin{figure*}[ht]
 \begin{center}
-% \begin{align*}
-\includegraphics[scale=0.4]{../experiments/exp10.jpg}
-% \end{align*}
+\begin{align*}
+\centerline{\includegraphics[scale=0.32]{../experiments/exp10.jpg}}
+\end{align*}
 \end{center}
 \caption{A histogram of word distributions of the response for each poem. Here, each poem is represented by one line. The heavy overlap suggests that there is much similarity in the word distribution over comments.}
 \label{histogram}
 \end{figure*}
+
+
+\subsection{Predicting Proportion of Affect Words}
+We are able to succesfully predict the proportion of Affect Words with 37.7\% reduction in error 
+
+\begin{figure*}[ht]
+\begin{center}
+\begin{align*}
+\centerline{\includegraphics[scale=0.30]{../experiments/exp00.jpg}}
+\end{align*}
+\end{center}
+\caption{A histogram of word distributions of the response for each poem. Here, each poem is represented by one line. The heavy overlap suggests that there is much similarity in the word distribution over comments.}
+\label{featureplot}
+\end{figure*}
+
+\subsection{Prediction of Average Response Length}
+
+
+\subsection{Prediction of Type-Token Ratio}
+
+
 
 \section{Discussion}
 

@@ -8,6 +8,9 @@ from extract_comment_features import (getAffectRatios,
     getNRCRatios)
 from make_plot import (makePlots, makeHistogram)
 
+DEFAULT_FEATURE_LIST = ['HGI-positiv', 'HGI-concrete', 'typeTokenRatio',
+    'numWordsPerLine','perfectRhymeScore','HGI-negativ', 'NRC-joy',
+    'NRC-trust']
 
 def exp00():
     """
@@ -18,8 +21,7 @@ def exp00():
     poems = m.poems
     scores = getAffectRatios()  # plot average comment length
     makePlots(poems, scores, "affect ratio", "../experiments/exp00.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp01():
     """
@@ -62,8 +64,7 @@ def exp02():
     poems = m.poems
     scores = getAverageCommentLength()  # plot average comment length
     makePlots(poems, scores, "average comment length", "../experiments/exp02.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp03():
     """
@@ -79,8 +80,7 @@ def exp03():
     poems = m.poems
     scores = getLogAverageCommentLength()
     makePlots(poems, scores, "log of average comment length", "../experiments/exp03.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp04():
     """
@@ -90,8 +90,7 @@ def exp04():
     poems = m.poems
     scores = getPoemScores()
     makePlots(poems, scores, "poem score", "../experiments/exp04.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp05():
     """
@@ -101,8 +100,7 @@ def exp05():
     poems = m.poems
     scores = getNumberOfComments()
     makePlots(poems, scores, "number of comments", "../experiments/exp05.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp06():
     """
@@ -112,8 +110,7 @@ def exp06():
     poems = m.poems
     scores = getNumberOfComments(True) # use log
     makePlots(poems, scores, "log of number of comments", "../experiments/exp06.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp07():
     """
@@ -146,8 +143,7 @@ def exp08():
     poems = m.poems
     scores = getCommentTypeTokenRatio()
     makePlots(poems, scores, "comment type token ratio", "../experiments/exp08.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp081():
     """
@@ -170,8 +166,7 @@ def exp081():
     poems = m.poems
     scores = getCommentTypeTokenRatio(100) # sample words
     makePlots(poems, scores, "sampled type-token ratio", "../experiments/exp08.1.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp09():
     """
@@ -184,8 +179,7 @@ def exp09():
     poems = m.poems
     scores = getNRCRatios()
     makePlots(poems, scores, "NRC ratio", "../experiments/exp09.jpg")
-    useFeatureList = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-    runPredictCV(poems, scores, useFeatureList)
+    runPredictCV(poems, scores, DEFAULT_FEATURE_LIST)
 
 def exp10():
     """
@@ -196,4 +190,4 @@ def exp10():
     makeHistogram(affectHist, "../experiments/exp10.jpg")
 
 if __name__ == "__main__":
-	exp10()
+	exp00()

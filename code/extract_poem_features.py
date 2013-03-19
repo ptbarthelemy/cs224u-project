@@ -323,18 +323,18 @@ class PoemModel():
 			if word in cate['negative']:
 			  neg += cate['negative'][word]
 
-		poemFeatures["posWords"] = posWords * 1.0 / len(words)
-		poemFeatures["negWords"] = negWords * 1.0 / len(words)
-		poemFeatures["conWords"] = conWords * 1.0 / len(words)
-		poemFeatures["absWords"] = absWords * 1.0 / len(words)
-		poemFeatures["anger"] = anger / len(words)
-		poemFeatures["anticipation"] = anticipation / len(words)
-		poemFeatures["fear"] = fear / len(words)
-		poemFeatures["joy"] = joy / len(words)
-		poemFeatures["sadness"] = sadness / len(words)
-		poemFeatures["surprise"] = surprise / len(words)
-		poemFeatures["trust"] = trust / len(words)
-		poemFeatures["disgust"] = disgust / len(words)
+		poemFeatures["HGI-positiv"] = posWords * 1.0 / len(words)
+		poemFeatures["HGI-negativ"] = negWords * 1.0 / len(words)
+		poemFeatures["HGI-concrete"] = conWords * 1.0 / len(words)
+		poemFeatures["HGI-abstract"] = absWords * 1.0 / len(words)
+		poemFeatures["NRC-anger"] = anger / len(words)
+		poemFeatures["NRC-anticipation"] = anticipation / len(words)
+		poemFeatures["NRC-fear"] = fear / len(words)
+		poemFeatures["NRC-joy"] = joy / len(words)
+		poemFeatures["NRC-sadness"] = sadness / len(words)
+		poemFeatures["NRC-surprise"] = surprise / len(words)
+		poemFeatures["NRC-trust"] = trust / len(words)
+		poemFeatures["NRC-disgust"] = disgust / len(words)
 
 
 if __name__ == "__main__":
