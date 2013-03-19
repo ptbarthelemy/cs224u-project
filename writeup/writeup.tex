@@ -6,7 +6,6 @@
 %% Based on the style files for ACL2008 by Joakim Nivre and Noah Smith
 %% and that of ACL2010 by Jing-Shin Chang and Philipp Koehn
 
-
 \documentclass[11pt]{article}
 \usepackage{acl2012}
 \usepackage{times}
@@ -49,15 +48,18 @@
 \end{flushright}
 
 
-Literature in general and poetry in particular present unique challenges for natural language understanding systems. Literary scholars often articulate the manner in which the primary purpose of literature is deviance, in some sense, from the common expectations we hold of human language. Raymond Chapman describes literature as ‚Äúthe art that uses language,‚Äù and Viktor Shklovskij notes that in poetry in particular we consistently find ‚Äúmaterial obviously created to remove the automatism of perception.‚Äù In Shklovskij's terms, literature effects a ‚Äúdefamiliarization‚Äù that surprises, delights, and moves to emotion in a way normal language does not.
+Literature in general and poetry in particular present unique challenges for natural language understanding systems. Literary scholars often articulate the manner in which the primary purpose of literature is deviance, in some sense, from the common expectations we hold of human language. Raymond Chapman describes literature as ``the art that uses language,'' and Viktor Shklovskij notes that in poetry in particular we consistently find ``material obviously created to remove the automatism of perception.'' In Shklovskij's terms, literature effects a ``defamiliarization'' that surprises, delights, and moves to emotion in a way normal language does not.
 
 Beyond domain adaptation problems, divergences in structure and language use in poetic texts introduce difficulties for traditional NLP and NLU such as syntactic or semantic parsers, which often rely on some expectation of ‚Äúwell-formedness,‚Äù either explicitly or implicitly (such as in training data comprised of only full, ‚Äúreal‚Äù sentences). In our project, we are interested in discovering the features of poetic texts that correlate highly with a strong emotional response on the part of the reader. It is a fascinating aspect of poetry that it is often able to deliver a high emotional impact to a reader concisely, and in one sense this is an aspect of poetry that sets it apart from other genres of text. Therefore, our papers selected for this literature review concern work that attempts to confront the aforementioned difficulties of a computational understanding of poetry, and then work that addresses the emotional content of language.
 
 \section{Related Work}
 
 \newcite{kao2012computational} used computational methods to classify aesthetics of contemporary poetry. In particular, they analyzed diction, sound devices (rhyme, alliteration, and assonance), and imagery. As a proxy for a labeling poems as aesthetic or non-aesthetic, Kao and Jurafsky simply used the classes of professional versus amateur, which is expected to closely represent the former two categories with the advantage of having obvious labels.
-	Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often “intentionally ambiguous”, attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon “strange” words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary–“varied” meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more “strange” words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
-	Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imagery–imagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage “show, don’t tell.”
+
+Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often “intentionally ambiguous”, attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon “strange” words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary–“varied” meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more “strange” words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
+
+Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imagery–imagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage “show, don’t tell.”
+
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
 \section{Dataset}
@@ -65,8 +67,30 @@ Finally, with regard to form, professional poetry employs far fewer overt sound 
 
 \subsection*{Corpus Composition}
 
+\section{Methodology}
+Our task is quite generally defined as the prediction of a human response to poetry. To this end, we use features to describe the poems and their resulting comments. We use latter to capture the human response, and we use the former to predict the latter.
+
+\subsection*{Poem Features}
+% TODO: fix citations!
+Poetic features are in part taken from \newcite{kao2012computational}, where they were used to analyze the asthetics of poetry, and Tizoosh et al, where they were used to classify poetry. We can divide them into three groups: orthography, sound device, and sentiment.
+
+\subsubsection*{Orthographic Features}
+Orthographic features capture the \emph{shape} of the poems. To decribe this, we used the following features: number of lines, number of stanzas, number of lines per stanzas, number of words per line, and type token ratio.
+
+\subsubsection*{Sound Device Features}
+Uniquely prevalent to poetry, sound device is a strong descriptive feature for both identifying poetry (Tizhoosh et al.) and classifying profession versus amatuer poetry. We used the CMU pronunciation dictionary, which maps words to phonemes.
+
+In particular, we quantified perfect rhyme, slant rhyme, and alliteration. Perfect rhyme is defined as rhyme having the same ending vowel sound but differing consonant sound preceding it. Slant rhyme is defined as having the same ending consonant sound, but a different vowel sound preceding it. To simplify feature extraction, we avoid searching for particular rhyme schemes (e.g. aabb, ABAB), and simply check whether the ending word of a given sentence rhymes with the ending word of one of the previous two sentences. This ignores cases in which rhyme skips two lines, and would grossly underestimate the rhyming of, say, a Petrarchan Sonnet (abbaabbacdecde), though these rhyme schemes appear rarely.
+
+We capture alliteration by counting the words within a fixed window having the same starting consonant sound. This is an approximation, as alliteration is rather defined as the repetition of stressed consonant sounds, which may include sounds occuring within a word.
+
+Additionally and unlike \shortcite{kao2012computational} and Tizhoosh et al, we added features to quantify the proportion of nasals, fricatives, stops, and liquids. 
+
+% TODO: how do we justify this again?
+
+\subsection*{Comment Features}
+
 \section{Experiments}
-\subsection*{Features}
 
 
 \section{Discussion}
