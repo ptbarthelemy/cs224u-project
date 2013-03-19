@@ -44,7 +44,10 @@
 
 \paragraph{}
 \emph{Poetry is when an emotion has found its thought and the thought has found words.}
--Robert Frost
+\begin{flushright}
+--- Robert Frosts\\
+\end{flushright}
+
 
 Literature in general and poetry in particular present unique challenges for natural language understanding systems. Literary scholars often articulate the manner in which the primary purpose of literature is deviance, in some sense, from the common expectations we hold of human language. Raymond Chapman describes literature as ‚Äúthe art that uses language,‚Äù and Viktor Shklovskij notes that in poetry in particular we consistently find ‚Äúmaterial obviously created to remove the automatism of perception.‚Äù In Shklovskij's terms, literature effects a ‚Äúdefamiliarization‚Äù that surprises, delights, and moves to emotion in a way normal language does not.
 
@@ -52,12 +55,21 @@ Beyond domain adaptation problems, divergences in structure and language use in 
 
 \section{Related Work}
 
-\newcite{kao2012computational}'s work ...
-
+\newcite{kao2012computational} used computational methods to classify aesthetics of contemporary poetry. In particular, they analyzed diction, sound devices (rhyme, alliteration, and assonance), and imagery. As a proxy for a labeling poems as aesthetic or non-aesthetic, Kao and Jurafsky simply used the classes of professional versus amateur, which is expected to closely represent the former two categories with the advantage of having obvious labels.
+	Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often “intentionally ambiguous”, attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon “strange” words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary–“varied” meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more “strange” words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
+	Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imagery–imagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage “show, don’t tell.”
+Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
 \section{Dataset}
+\subsection*{Data collection}
 
-\section{Conclusion}
+\subsection*{Corpus Composition}
+
+\section{Experiments}
+\subsection*{Features}
+
+
+\section{Discussion}
 
 \section{Future work}
 
