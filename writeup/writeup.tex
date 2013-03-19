@@ -18,7 +18,7 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \setlength\titlebox{6.5cm}    % Expanding the titlebox
 
-\title{Emotional Responses to Poetry}
+\title{In a Sentimental Mood: A Computational Analysis of Emotional Responses to Poetry}
 
 \author{P. Thomas Barthelemy \\
   Computer Science\\
@@ -38,7 +38,8 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-  This document contains the instructions for preparing a camera-ready manuscript for the proceedings of ACL2012. The document itself conforms to its own specifications, and is therefore an example of what your manuscript should look like. These instructions should be used for both papers submitted for review and for final versions of accepted papers. Authors are asked to conform to all the directions reported in this document.
+What makes a poem more sentimental than the others? 
+This work focuses on emotional responses to poetry. For a given poem, we will attempt to identify and extract features which are capable of predicting a distribution over emotional categories seen in the comments responding to the poem. Our task can be divided into two phases: feature extraction for the purpose of describing poems and comment labelling. We will then use a MaxEnt classifier to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions.
 \end{abstract}
 
 \section{Introduction}
@@ -59,7 +60,6 @@ There is also a common emphasis in the literary community on "formal devices," i
 Therefore, in this project we are interested in discovering the features of poetic texts that correlate highly with a strong emotional response.
 
 
-\subsection*{Task}
 This work focuses on emotional responses to poetry. For a given poem, we will attempt to identify and extract features which are capable of predicting a distribution over emotional categories seen in the comments responding to the poem. Our task can be divided into two phases: feature extraction for the purpose of describing poems and comment labelling. We will then use a MaxEnt classifier to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions.
 
 
