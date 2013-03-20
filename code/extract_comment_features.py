@@ -47,7 +47,7 @@ def getCommentsFromFile(filename, path, commentAsDocument):
 	text = cleanData(filename, f.read().lower())
 	f.close()
 
-	comments = re.findall(r"commenter:[\w ]+\|\|\|   (.*)  \|\|\| likes", text)
+	comments = re.findall(r"commenter:[\w ]+(.*)\|\|\|(\s)*likes", text)
 
 	if len(comments) < MIN_COMMENT_NUM:
 		return None
