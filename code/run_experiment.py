@@ -275,6 +275,6 @@ if __name__ == "__main__":
     # exp06() # log of number of comments
     # exp11() # table of correlations
     # exp07()
-    # exp12() # 3-correlation-plot
     # exp13()
-    exp10()
+    exp12() # 3-correlation-plot
+    # exp10()
