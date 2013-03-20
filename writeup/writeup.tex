@@ -44,7 +44,7 @@
 \maketitle
 \begin{abstract}
 What makes a poem more sentimental than the others? What in a poem makes its reader feel more connected? We use computational methods to analyze the correlation between the features of poetry and the types of emotive responses it elicits.
-We attempt to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions.
+We attempt to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions. %%TODO : Our conclusions are less relevant to emotion in particular than response in general. Perhaps we can generalize our aim to simply categorizing response? Later, we write "The goal of our experiments was to predict the comment features"... I think this best describes our experiments
 \end{abstract}
 
 \section{Introduction}
@@ -62,8 +62,8 @@ It is fascinating that poetry is often able to concisely deliver a high emotiona
 
 There is also a common, and perhaps somewhat contradictory, emphasis in the literary community on ``formal devices,'' including aspects of the structure of poetry as well as literary devices that poetry often employs, such as alliteration, rhyme, meter, and other forms of wordplay and creative use of language \cite{brooks1956well,packard1994poet,turco2000book}. Indeed, scholars in the critical school known as ``reader-response criticism'' have suggested that ``our emotional response to works of art comes much more from form than from the act of meaning,'' an interpretation aimed at explaining why we ``respond far more emotionally'' to music and poetry than prose or other genres of text \cite{holland1989dynamics}.
 
-Such claims have been tested by experimental studies from researchers in psychology and literary criticism [cite?]. %%TODO
-However, of yet we lack empirical studies in the computational linguistics community identifying formal and linguistic features of poetry that contribute to its capacity to produce an emotional response in its readers.
+Such claims have been tested by experimental studies from researchers in psychology and literary criticism. %%TODO add citation
+ However, of yet we lack empirical studies in the computational linguistics community identifying formal and linguistic features of poetry that contribute to its capacity to produce an emotional response in its readers.
 
 Therefore we propose to collect a dataset of poems and a set of associated responses to discover the features of poetic texts that correlate highly with a strong emotional response. In so doing, we aim to further our understanding of what makes poetry \emph{poetic}, and identify the extent to which such linguistic features might contrast with broader-scale semantic and contextual considerations.
 
@@ -81,21 +81,22 @@ Additionally, it was observed that professional poets use more concrete words. E
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
 \section{Dataset}
-For this study, we propose a free-text to free-text framework for analysis. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. Each poem is then associated with the set of free-text responses to that poem from which we extract data to act as the poem's ``response label.'' Various implementations [wrong word? fix] of these response labels are described later in the paper.
+For this study, we propose a text-to-text framework for analysis. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. The poem is then associated with its set of free-text responses from which we extract data to act as the poem's \emph{response label.} Various extraction methods of these response labels are described later in the paper. %TODO: check if the last two sentences make sense.
 
-\subsection*{Data Collection}
+\subsection{Data Collection}
 For a first pass at data collection, we ran a trial experiment on Amazon's Mechanical Turk service with five ten-line poems. We showed each poem to 20 Turkers and asked them to read and digest its contents. We then asked for them to provide a free-text response describing their personal, subjective emotional reaction to the poem. 
 
-However, upon manual review of the results, we found them to be of roughly similar quality to comments provided on the website \texttt{PoemHunter.com}, and therefore changed our approach for data collection to web-scraping, to allow both for a larger dataset and a more varied selection of poems. We treat the comments for a given poem as our free-text responses for the purposes of this study.
+However, upon manual review of the results, we found them to be similar in quality to comments provided on the website \texttt{PoemHunter.com}, and therefore changed our approach for data collection to web-scraping, to allow both for a larger dataset and a more varied selection of poems. We treat the comments for a given poem as our free-text responses for the purposes of this study.
 
-We began by scraping the ``Top 500 Poems'' section of the website, comprised of poems by professional poets. Since there are many thousands of poems on the site and comments are relatively sparse, these poems offered a high density of comments for collection. It is not clear, however, how these ``Top'' poems were selected (it is evidently not based upon rating or number of comments), and so this selection has the potential to skew our results.
+We began by scraping the Top 500 Poems section of the website, comprised of poems by professional poets. Because there are many thousands of poems on the site and comments are relatively sparse, these poems offered a high density of comments for collection. It is unclear, however, how these ``Top'' poems were selected (it is evidently not based upon rating or number of comments), and so this selection has the potential to skew our results. %%TODO. there are 301 poems with >= 13 comments
 
-Therefore, we scraped an additional 25,000 poems from the site by following links to poets in the ``Top 500 Poets'' list. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems from this set with over 10 comments in response; this requirement cut down this additional data source to only approximately [do exact number?] 500 new poems, each with more than 10 comments.
+To expand our dataset, we scraped 40,000 additional poems by the top 400 poets on the Top 500 Poets list from the same website. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems with at least 13 comments in response; this requirement cut down this additional data source to only 344 new poems, each with 13 comments or more.
 
-\subsection*{Corpus Composition}
+\subsection{Corpus Composition}
+%%TODO
 
 \section{Methodology}
-Our task is quite generally defined as the prediction of a human response to poetry. To this end, we use features to describe the poems and their resulting comments. We use latter to capture the human response, and we use the former to predict the latter.
+Our task is quite generally defined as the prediction of a human response to poetry. To this end, we use features to describe the poems and their resulting comments. We use the latter to capture the human response, and we use the former to predict the latter.
 
 \subsection{Poem Features}
 % TODO: fix citations!
@@ -114,12 +115,15 @@ It should be noted here that we have used a rather strict definition of \emph{rh
 We capture alliteration by counting the words within a fixed window having the same starting consonant sound. This is an approximation, as alliteration is rather defined as the repetition of stressed consonant sounds, which may include sounds occurring within a word.
 
 Additionally and unlike \cite{kao2012computational} and Tizhoosh et al, we added features to quantify the proportion of nasals, fricatives, stops, and liquids. 
-% TODO: how do we justify this again?
+% TODO: Rob, how do we justify this again?
 
 \slimparagraph{Diction}
 Similar to \newcite{kao2012computational}, we try to capture the use of positive/negative words and abstract/concrete words, which we derive from the Harvard General Inquirer wordlists. The positive (``positiv''), negative(``negativ''), and abstract (``abs@'', ``abs'') categories can be used as-is, however there is no category for concrete words. Thus, we construct them as the union of pre-existing categories that describe include concrete items (``space'', ``object'', ``color'', ``place'').
 
-We also attempt to describe affect words and their intensities. To this end, we use the NRC dictionary and blah blah blah
+We also attempt to describe affect words and their intensities. To this end, we use the NRC dictionary coupling with sentiment scores collected from Amazon Mechanical Turk to determine the intensity of a given category. For the categories `anticipation’ and `surprise’, we compute 
+
+$$score_{\tt intensity} = 2 \times ( score_{\tt positive} - 0.5 )$$
+%%TODO : jean
 
 \subsection{Comment Features}
 We focus on three ways of categorizing comment responses: popularity, orthography, and sentiment.
@@ -179,7 +183,8 @@ At test time, then, performance would be based on the KL divergence of the predi
 
 
 \subsection{Predicting Proportion of Affect Words}
-Next, we aim to characterize the magnitude of affect words in the user response. We describe this concept with the relative proportion of affect words. Multiple poetic features are correlated with the affect ratio, as shown in Table~\ref{feature-correlation}. Notably, the strongest correlated features with $p \le 0.005$ are: HGI-positiv, HGI-concrete, NRC-joy, NRC-trust, NRC-anticipation, type-token ratio, perfect rhyme score, and proportion of stops. When using such features, we are able to predict the affect ratio with 34.6\% reduction in error over simply predicting the average.
+Next, we aim to characterize the magnitude of affect words in the user response. We describe this concept with the relative proportion of affect words. Multiple poetic features are correlated with the affect ratio, as shown in Table~\ref{feature-correlation}. Notably, the strongest correlated features with $p \le 0.005$ are: HGI-positiv, HGI-concrete, NRC-joy, NRC-trust, NRC-anticipation, type-token ratio, perfect rhyme score, and proportion of stops. %%TODO : Rob--this would be a good lead-in into what you will mention in the discussion... why do our results seem counter-intuitive after Kao's?
+ When using such features, we are able to predict the affect ratio with 34.6\% reduction in error over simply predicting the average.
 
 \begin{figure*}[ht]
 \begin{center}
@@ -187,7 +192,9 @@ Next, we aim to characterize the magnitude of affect words in the user response.
 \centerline{\includegraphics[scale=0.4]{../experiments/affect-ratio.pdf}}
 \end{align*}
 \end{center}
+\vspace{-0.8cm}
 \caption{A collection of scatter plots showing the correlation of the poem features and the comment affect ratio.}
+\vspace{0.5cm}
 \label{affect-ratio-features}
 \end{figure*}
 
@@ -233,13 +240,14 @@ In this paper, we drew upon earlier computational work in the analysis of poetry
 
 In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems tend to have ‚Ä¶ [significant features list].
 
-These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \cite{kaoandjurafsky2012}. In their work, Kao and Jurafsky found that [stat significant features etc] were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more ``emotive'' poetry per our metrics is a finding that requires a further explanation.
+These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kao2012computational}. In their work, Kao and Jurafsky found that %%TODO [stat significant features etc]
+ were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more ``emotive'' poetry per our metrics is a finding that requires a further explanation.
 
 Looking by hand at the sets of responses which we found to have a high proportion of affect words, 
 
 
 justification / explanation of phonetic features: 
-   Holland quote to use -  ``in poetic language [...] particular sounds involve muscular actions that somehow match the sense.'' pg 136
+   Holland quote to use -  ``in poetic language, \dots particular sounds involve muscular actions that somehow match the sense.'' \cite{holland1989dynamics}.
 
 
 \section{Future work}
