@@ -44,7 +44,8 @@
 \maketitle
 \begin{abstract}
 What makes a poem more sentimental than the others? What in a poem makes its reader feel more connected? We use computational methods to analyze the correlation between the features of poetry and the types of emotive responses it elicits.
-We attempt to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions. %%TODO : Our conclusions are less relevant to emotion in particular than response in general. Perhaps we can generalize our aim to simply categorizing response? Later, we write "The goal of our experiments was to predict the comment features"... I think this best describes our experiments
+We attempt to predict emotional response distributions for new poems, and discuss which features contribute most significantly to these predictions.
+%%TODO : Our conclusions are less relevant to emotion in particular than response in general. Perhaps we can generalize our aim to simply categorizing response? Later, we write "The goal of our experiments was to predict the comment features"... I think this best describes our experiments
 \end{abstract}
 
 \section{Introduction}
@@ -70,7 +71,12 @@ Therefore we propose to collect a dataset of poems and a set of associated respo
 
 
 \section{Related Work}
+<<<<<<< HEAD
 \newcite{tizhoosh2008poetic} compared five different strategies for computational classification of documents as poetry or non-poetry. To do so, they focus on three categories of features: shape, meter, and rhyme. These they define as “topographical” features of poetry, or features that can be examined simply by looking at the poem. They also mention other elements of poetry that are not used for classification in their work: sonic features (e.g. rhythm and meter), sensory (i.e. elements appealing to emotion), and ideational (e.g. grammar and syntax).
+=======
+Previous literature has largely focused on classification 
+\newcite{tizhoosh2008poetic} compared five different strategies for computational classification of documents as poetry or non-poetry. To do so, they focus on three categories of features: shape, meter, and rhyme. These they define as ÒtopographicalÓ features of poetry, or features that can be examined simply by looking at the poem. They also mention other elements of poetry that are not used for classification in their work: sonic features (e.g. rhythm and meter), sensory (i.e. elements appealing to emotion), and ideational (e.g. grammar and syntax).
+>>>>>>> writeup
 
 Additionally, Tizhoosh et al. attempted to characterize the meaning of poetry. One can get a sense of the imagery of the poem by counting the number of nouns, verbs, adjectives, and adverbs in each phrase. Also, phrase repetition is more common to poetry than prose.
 
@@ -100,12 +106,10 @@ For a first pass at data collection, we ran a trial experiment on Amazon's Mecha
 
 However, upon manual review of the results, we found them to be similar in quality to comments provided on the website \texttt{PoemHunter.com}, and therefore changed our approach for data collection to web-scraping, to allow both for a larger dataset and a more varied selection of poems. We treat the comments for a given poem as our free-text responses for the purposes of this study.
 
-We began by scraping the Top 500 Poems section of the website, comprised of poems by professional poets. Because there are many thousands of poems on the site and comments are relatively sparse, these poems offered a high density of comments for collection. It is unclear, however, how these ``Top'' poems were selected (it is evidently not based upon rating or number of comments), and so this selection has the potential to skew our results. %%TODO. there are 301 poems with >= 13 comments
-
-To expand our dataset, we scraped 40,000 additional poems by the top 400 poets on the Top 500 Poets list from the same website. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems with at least 13 comments in response; this requirement cut down this additional data source to only 344 new poems, each with 13 comments or more.
+We began by scraping the Top 500 Poems section of the website, comprised of poems by professional poets. Because there are many thousands of poems on the site and comments are relatively sparse, these poems offered a high density of comments for collection. It is unclear, however, how these ``Top'' poems were selected (it is evidently not based upon rating or number of comments), and so this selection has the potential to skew our results. %%TODO. there are 302 poems with >= 10 comments
 
 \subsection{Corpus Composition}
-%%TODO
+We filtered out poems that have less than 10 comments, which reduced our dataset size to 302 poems. We extract a total number of 15,900 comments, composed of 27,431 unique words, from these poems; on the average, there are 52 comments per poem. Each comment contains an average of 3.54 Affective words, as defined by the Linguistic Inquiry and Word Count (LIWC) dictionary \cite{pennebaker2001linguistic}.
 
 \section{Methodology}
 Our task is quite generally defined as the prediction of a human response to poetry. To this end, we use features to describe the poems and their resulting comments. We use the latter to capture the human response, and we use the former to predict the latter.
@@ -139,8 +143,6 @@ We also attempt to describe affect words and their intensities. To this end, we 
 $$intensity = 1 - score_{\tt pos/neg}.$$
 For the categories \emph{anticipation} and \emph{surprise}, we obtain the intensity using:
 $$intensity = 2 \times ( score_{\tt pos/neg} - 0.5 ).$$
-%%TODO : jean
-
 
 
 \subsection{Comment Features}
@@ -201,8 +203,7 @@ At test time, then, performance would be based on the KL divergence of the predi
 
 
 \subsection{Predicting Proportion of Affect Words}
-Next, we aim to characterize the magnitude of affect words in the user response. We describe this concept with the relative proportion of affect words. Multiple poetic features are correlated with the affect ratio, as shown in Table~\ref{feature-correlation}. Notably, the strongest correlated features with $p \le 0.005$ are: HGI-positiv, HGI-concrete, NRC-joy, NRC-trust, NRC-anticipation, type-token ratio, perfect rhyme score, and proportion of stops. %%TODO : Rob--this would be a good lead-in into what you will mention in the discussion... why do our results seem counter-intuitive after Kao's?
- When using such features, we are able to predict the affect ratio with 34.6\% reduction in error over simply predicting the average.
+Next, we aim to characterize the magnitude of affect words in the user response. We describe this concept with the relative proportion of affect words. Multiple poetic features are correlated with the affect ratio, as shown in Table~\ref{feature-correlation}. Notably, the strongest correlated features with $p \le 0.005$ are: HGI-positiv, HGI-concrete, NRC-joy, NRC-trust, NRC-anticipation, type-token ratio, perfect rhyme score, and proportion of stops. When using such features, we are able to predict the affect ratio with 34.6\% reduction in error over simply predicting the average.
 
 \begin{figure*}[ht]
 \begin{center}
@@ -256,7 +257,11 @@ Similarly, one might use the number of comments as a mark of aesthetic value. In
 \section{Discussion and Error Analysis}
 In this paper, we drew upon earlier computational work in the analysis of poetry to develop a set of linguistic and poetic features which we then used in a series of classification tasks aimed at predicting the \emph{emotional} content of responses for a given poem. While predicting emotional word-association distributions proved to be a dead end, we achieved interesting results in predicting the magnitude of \emph{affect} words, and type-token ratio.
 
+<<<<<<< HEAD
 In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems (i.e. poems eliciting a higher affect ratio) tend to have strongly distinguished sentiment diction (more positive words, more words associated with ``joy’’,``trust’’, and ``anticipation’’), fewer concrete words, a lower type-token ratio.
+=======
+In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems (i.e. poems eliciting a higher affect ratio) tend to have strongly distinguished sentiment diction (more positive words, more words associated with ``joyÕÕ,``trustÕÕ, and ``anticipationÕÕ), fewer concrete words, a lower type-token ratio.
+>>>>>>> writeup
 
 These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kaoandjurafsky2012}. In their work, Kao and Jurafsky found that concrete words and a higher type-token ratio were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more \emph{emotive}' poetry per our metrics is a finding that requires a further explanation.
 
@@ -282,7 +287,7 @@ Indeed, the high aspect ratio comments tended to be very short ones, as shown in
 \centerline{\includegraphics[scale=0.4]{../experiments/exp12.pdf}}
 \end{align*}
 \end{center}
-\caption{A collection of scatter plots showing the correlations of affect ratio, log average comment length, and comment type-token ratio.}
+\caption{A collection of scatter plots for features of the comments, showing the correlations of affect ratio, log average comment length, and comment type-token ratio.}
 \label{affect-ratio-length}
 \end{figure*}
 
@@ -292,11 +297,12 @@ justification / explanation of phonetic features:
 
 \section{Future work}
 
+We expand our dataset, we scraped 40,000 additional poems by the top 400 poets on the Top 500 Poets list from the same website. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems with at least 10 comments in response; this requirement cut down this additional data source to only 521 new poems, each with 10 comments or more.
 
 
 \section*{Acknowledgments}
 
-Do not number the acknowledgment section. Do not include this section when submitting your paper for review.
+Many thanks to our professors Chris and Bill for a wonderful course, and to our TAs Natalia, Matt, and Kat for their help throughout. Thanks in particular to Chris for his specific suggestions on this project, and for providing us with access to the PragLab account for our preliminary study on Mechanical Turk.
 
 
 \bibliographystyle{acl}
