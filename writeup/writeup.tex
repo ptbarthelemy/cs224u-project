@@ -39,7 +39,6 @@
   {\tt jeaneis@stanford.edu} \\}
 
 \date{}
-
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -149,6 +148,7 @@ Additionally, we categorize the magnitude of the affect response by counting the
 \section{Experiments}
 The goal of our experiments was to predict the comment features using the poetic features. During all experiments but the emotional distribution prediction, we use a linear regression model to predict the comment feature. Due to our relatively sparse data, we use 10 fold cross validation. A summary of our findings are provided in Table~\ref{experiment-summary}.
 \begin{table}['ht]
+\small
 \begin{center}
 \label{experiment-summary}
 \vskip 0.12in
@@ -179,9 +179,8 @@ At test time, error is measured by the KL divergence of the predicted emotional 
 \centerline{\includegraphics[scale=0.4]{../experiments/exp10.pdf}}
 \end{align*}
 \end{center}
-\vspace{-.6cm}
+\vspace{-.8cm}
 \caption{A histogram of word distributions of the response for each poem. Here, each poem is represented by one line. The heavy overlap suggests that there is much similarity in the word distribution over comments.}
-\vspace{.5cm}
 \label{histogram}
 \end{figure*}
 
@@ -191,13 +190,13 @@ Next, we aim to characterize the magnitude of affect response, which we quantify
 
 \begin{figure*}[ht]
 \begin{center}
+\vspace{-.5cm}
 \begin{align*}
 \centerline{\includegraphics[scale=0.4]{../experiments/affect-ratio.pdf}}
 \end{align*}
 \end{center}
-\vspace{-0.8cm}
+\vspace{-0.6cm}
 \caption{A collection of scatter plots showing the correlation of statistically significant poem features and the comment affect ratio.}
-\vspace{0.5cm}
 \label{affect-ratio-features}
 \end{figure*}
 
@@ -269,6 +268,7 @@ Indeed, this is a general trend of the comments: the high affect ratio comments 
 \centerline{\includegraphics[scale=0.4]{../experiments/exp12.pdf}}
 \end{align*}
 \end{center}
+\vspace{-.6cm}
 \caption{A collection of scatter plots for features of the comments, showing the correlations of affect ratio, log average comment length, and comment type-token ratio.}
 \label{affect-ratio-length}
 \end{figure*}
