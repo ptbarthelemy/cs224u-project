@@ -242,7 +242,7 @@ def exp12():
     cLength = getLogAverageCommentLength()
     typeToken = getCommentTypeTokenRatio(100)
 
-    plt.figure(num=None, figsize=(18, 6), dpi=80, facecolor='w',
+    plt.figure(num=None, figsize=(18, 4.5), dpi=80, facecolor='w',
         edgecolor='k')
 
     plt.subplot(1, 3, 1)
@@ -275,5 +275,6 @@ if __name__ == "__main__":
     # exp06() # log of number of comments
     # exp11() # table of correlations
     # exp07()
-    # exp12()
-    exp13()
+    # exp12() # 3-correlation-plot
+    # exp13()
+    exp10()

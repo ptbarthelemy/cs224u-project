@@ -9,7 +9,7 @@ from math import log
 from random import sample
 
 MIN_COMMENT_NUM = 10
-COMMENT_DIR = "../data/comments_new/"
+COMMENT_DIR = "../data/comments_old/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
 NRC_RATIO_DICT = "nrc_ratio.p"

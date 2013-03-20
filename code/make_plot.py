@@ -67,7 +67,7 @@ def blowUpPlots(xDict, yDict):
         plt.savefig("zoom_%s.jpg" % feature, format="jpg")
 
 def makeHistogram(affectHist, filename):
-    plt.figure(num=None, figsize=(18, 6), dpi=80)
+    plt.figure(num=None, figsize=(18, 4.5), dpi=80)
     cats = sorted(next(iter(affectHist.values())).keys())
     for hist in affectHist.values():
         plt.plot(range(len(cats)), 
