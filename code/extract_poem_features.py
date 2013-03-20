@@ -340,3 +340,5 @@ class PoemModel():
 if __name__ == "__main__":
 	m = getPoemModel()
 	
+	print m.isPerfectRhyme("lamentable", "preventable")
+	print m.isSlantRhyme("lamentable", "preventable")

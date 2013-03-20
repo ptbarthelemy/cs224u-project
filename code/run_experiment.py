@@ -7,6 +7,7 @@ from extract_comment_features import (getAffectRatios,
     getTopAffectRatioComments, getCommentTypeTokenRatio,
     getNRCRatios)
 from make_plot import (makePlots, makeHistogram)
+from scipy.stats.stats import pearsonr
 
 DEFAULT_FEATURE_LIST = ['HGI-positiv', 'HGI-concrete', 'typeTokenRatio',
     'NRC-joy', 'NRC-trust', 'perfectRhymeScore', 'NRC-anticipation',
@@ -189,5 +190,40 @@ def exp10():
     affectHist = getAffectHistograms()
     makeHistogram(affectHist, "../experiments/exp10.pdf")
 
+def getCorrelation(poems, scores, feature):
+    x, y = [], []
+    for key, value in poems.items():
+        if scores.get(key, None) is None:
+            continue
+        if value.get(feature) is None:
+            print feature
+            assert False
+        x.append(value.get(feature))
+        y.append(scores.get(key))
+    return pearsonr(x, y)
+
+def exp11():
+    poems = getPoemModel().poems
+    scores = {}
+    scores['affect'] = getAffectRatios()
+    scores['cLength'] = getLogAverageCommentLength()
+    scores['rating'] = getPoemScores()
+    scores['typeToken'] = getCommentTypeTokenRatio(100)
+    scores['numC'] = getNumberOfComments(True) # use log
+
+    result = {}
+    for k1, v1 in scores.items():
+        for feature in poems.values()[0].keys():
+            cor, p = getCorrelation(poems, v1, feature)
+            if result.get(feature, None) is None:
+                result[feature] = {k1:(cor, p)}
+            else:
+                result[feature][k1] = (cor, p)
+
+    for k1 in sorted(result.keys(), key=lambda x:result[x]['rating'][1]): # sort by affect
+        print "\\\\", k1, "& %0.2f & %0.4f" % result[k1]['affect'], "& %0.2f & %0.4f" % result[k1]['typeToken'] \
+            , "& %0.2f & %0.4f" % result[k1]['cLength'], "& %0.2f & %0.4f" % result[k1]['rating'] \
+            , "& %0.2f & %0.4f" % result[k1]['numC']
+
 if __name__ == "__main__":
-	exp00()
+	exp11()
