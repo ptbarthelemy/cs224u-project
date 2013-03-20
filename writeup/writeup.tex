@@ -75,7 +75,7 @@ Additionally, it was observed that professional poets use more concrete words. E
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
 \section{Dataset}
-For this study, we propose a text-to-text framework for analysis. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. Each poem is then associated with the set of free-text responses to that poem from which we extract data to act as the poem's ``response label.'' Various implementations [wrong word? fix] of these response labels are described later in the paper.
+For this study, we extract features from the poem text and the comment text separately. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. Each poem is then associated with the set of free-text responses to that poem from which we extract data to act as the poem's ``response label.'' Various implementations [wrong word? fix] of these response labels are described later in the paper.
 
 \subsection*{Data Collection}
 For a first pass at data collection, we ran a trial experiment on Amazon's Mechanical Turk service with five ten-line poems. We showed each poem to 20 Turkers and asked them to read and digest its contents. We then asked for them to provide a free-text response describing their personal, subjective emotional reaction to the poem. 
@@ -114,7 +114,6 @@ Additionally and unlike \newcite{kao2012computational} and \newcite{tizhoosh2008
 Similar to \cite{kao2012computational}, we try to capture the use of positive/negative words and abstract/concrete words, which we drive from the Harvard General Inquirer wordlists. The positive (``positiv''), negative(``negativ''), and abstract (``abs@'', ``abs'') categories can be used as-is, however there is no category for concrete words. Thus, we construct one as the union of pre-existing categories that describe concrete items (``space'', ``object'', ``color'', ``place'').
 
 We also attempt to describe affect words and their intensities. To this end, we use the NRC dictionary coupling with sentiment scores collected from Amazon Mechanical Turk to determine the intensity of a given category. For the categories `anticipation’ and `surprise’, we compute 
-
 $$score_{\tt intensity} = 2 \times ( score_{\tt positive} - 0.5 )$$
 
 \subsection*{Comment Features}

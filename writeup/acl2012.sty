@@ -242,7 +242,6 @@
 \section*{References\@mkboth
  {References}{References}}\list
  {}{\setlength{\labelwidth}{0pt}\setlength{\leftmargin}{\parindent}
- \setlength{\itemsep}{-0.5ex}
  \setlength{\itemindent}{-\parindent}}
  \def\newblock{\hskip .11em plus .33em minus -.07em}
  \sloppy\clubpenalty4000\widowpenalty4000
@@ -326,16 +325,16 @@
 
 % Less leading in most fonts (due to the narrow columns)
 % The choices were between 1-pt and 1.5-pt leading
-%\def\@normalsize{\@setsize\normalsize{11pt}\xpt\@xpt}
-%\def\small{\@setsize\small{10pt}\ixpt\@ixpt}
-%\def\footnotesize{\@setsize\footnotesize{10pt}\ixpt\@ixpt}
-%\def\scriptsize{\@setsize\scriptsize{8pt}\viipt\@viipt}
-%\def\tiny{\@setsize\tiny{7pt}\vipt\@vipt}
-%\def\large{\@setsize\large{14pt}\xiipt\@xiipt}
-%\def\Large{\@setsize\Large{16pt}\xivpt\@xivpt}
-%\def\LARGE{\@setsize\LARGE{20pt}\xviipt\@xviipt}
-%\def\huge{\@setsize\huge{23pt}\xxpt\@xxpt}
-%\def\Huge{\@setsize\Huge{28pt}\xxvpt\@xxvpt}
+\def\@normalsize{\@setsize\normalsize{11pt}\xpt\@xpt}
+\def\small{\@setsize\small{10pt}\ixpt\@ixpt}
+\def\footnotesize{\@setsize\footnotesize{10pt}\ixpt\@ixpt}
+\def\scriptsize{\@setsize\scriptsize{8pt}\viipt\@viipt}
+\def\tiny{\@setsize\tiny{7pt}\vipt\@vipt}
+\def\large{\@setsize\large{14pt}\xiipt\@xiipt}
+\def\Large{\@setsize\Large{16pt}\xivpt\@xivpt}
+\def\LARGE{\@setsize\LARGE{20pt}\xviipt\@xviipt}
+\def\huge{\@setsize\huge{23pt}\xxpt\@xxpt}
+\def\Huge{\@setsize\Huge{28pt}\xxvpt\@xxvpt}
 
 \let\@@makecaption\@makecaption
 \renewcommand{\@makecaption}[1]{\@@makecaption{\small #1}}
