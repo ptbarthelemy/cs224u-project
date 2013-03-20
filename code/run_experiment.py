@@ -243,11 +243,11 @@ def exp12():
         edgecolor='k')
 
     plt.subplot(1, 3, 1)
-    checkCorrelation(affect, cLength, "affect ratio", "average comment length")
+    checkCorrelation(affect, cLength, "affect ratio", "log average comment length")
     plt.subplot(1, 3, 2)
     checkCorrelation(affect, typeToken, "affect ratio", "type-token ratio")
     plt.subplot(1, 3, 3)
-    checkCorrelation(cLength, typeToken, "average comment length", "type-token ratio")
+    checkCorrelation(cLength, typeToken, "log average comment length", "type-token ratio")
 
     plt.savefig("../experiments/exp12.pdf", format="pdf")
 

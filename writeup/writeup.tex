@@ -70,7 +70,7 @@ Therefore we propose to collect a dataset of poems and a set of associated respo
 
 
 \section{Related Work}
-\newcite{tizhoosh2008poetic} compared five different strategies for computational classification of documents as poetry or non-poetry. To do so, they focus on three categories of features: shape, meter, and rhyme. These they define as “topographical” features of poetry, or features that can be examined simply by looking at the poem. They also mention other elements of poetry that are not used for classification in their work: sonic features (e.g. rhythm and meter), sensory (i.e. elements appealing to emotion), and ideational (e.g. grammar and syntax).
+\newcite{tizhoosh2008poetic} compared five different strategies for computational classification of documents as poetry or non-poetry. To do so, they focus on three categories of features: shape, meter, and rhyme. These they define as ìtopographicalî features of poetry, or features that can be examined simply by looking at the poem. They also mention other elements of poetry that are not used for classification in their work: sonic features (e.g. rhythm and meter), sensory (i.e. elements appealing to emotion), and ideational (e.g. grammar and syntax).
 
 Additionally, Tizhoosh et al. attempted to characterize the meaning of poetry. One can get a sense of the imagery of the poem by counting the number of nouns, verbs, adjectives, and adverbs in each phrase. Also, phrase repetition is more common to poetry than prose.
 
@@ -85,9 +85,9 @@ Additionally, it was observed that professional poets use more concrete words. E
 
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
-\newcite{brooke2012unsupervised} identified stylistic shifts within one poem, T.S. Eliot’s \emph{The Waste Land}, a poem which includes multiple interweaving voices, styles, and perspectives. Their goal was to use computational methods to identify points of a likely change in voice. To do this, they identified points at which there was a high degree of difference between the window of words before and after the proposed point of transition.
+\newcite{brooke2012unsupervised} identified stylistic shifts within one poem, T.S. Eliotís \emph{The Waste Land}, a poem which includes multiple interweaving voices, styles, and perspectives. Their goal was to use computational methods to identify points of a likely change in voice. To do this, they identified points at which there was a high degree of difference between the window of words before and after the proposed point of transition.
 
-Surface features included the number of syllables, punctuation and line break frequency, frequency of certain parts of speech (in particular nouns, verbs, adjectives, and adverbs) and pronouns, verb tense, type-token ratio, and a contextuality measure–a measure based on part-of-speech tags created by Heylighen and Dewaele (2002).
+Surface features included the number of syllables, punctuation and line break frequency, frequency of certain parts of speech (in particular nouns, verbs, adjectives, and adverbs) and pronouns, verb tense, type-token ratio, and a contextuality measureña measure based on part-of-speech tags created by Heylighen and Dewaele (2002).
 
 Additionally, they used extrinsic features like sentiment polarity and extremity, formality, and proportion of words included in the Dale-Chall (1995) Readability list and the General Inquirer dictionary. In general, the extrinsic features performed slightly better than surface features, but both complemented each other in their evaluation against a gold-standard segmented version of the text. Combining these results with that of Tizhoosh et al. shows that, though form features best distinguish poetry from non-poetry, both form and semantic features best capture the variance in style.
 
@@ -242,7 +242,7 @@ NRC-joy & $0.51$ & $<0.0001$ & -$0.39$ & $<0.0001$ & -$0.34$ & $<0.0001$ & $0.06
 \end{table*}
 
 \subsection{Predicting Average Response Length}
-Clearly, there is an identifiable difference in the text of the responses. With the goal of further clarifying this difference, we attempt to predict the average response length. Using the same features as above, we are able to predict this with 15.7\% reduction in error over guessing the average. As observable in Table~\ref{feature-correlation}, the features‚Äô correlations with average response length was the opposite of their correlation with average response length. That is, for example, though increased type-token ratio in the poem was correlated with decreased affect ratio, it was also correlated with \emph{increased} comment response length.
+Clearly, there is an identifiable difference in the text of the responses. With the goal of further clarifying this difference, we attempt to predict the average response length. Using the same features as above, we are able to predict this with 15.7\% reduction in error over guessing the average. As observable in Table~\ref{feature-correlation}, the featuresÇƒÙ correlations with average response length was the opposite of their correlation with average response length. That is, for example, though increased type-token ratio in the poem was correlated with decreased affect ratio, it was also correlated with \emph{increased} comment response length.
 
 \subsection{Predicting Type-Token Ratio}
 Additionally, we attempted to predict the type-token ratio of the responses given the poetic features identified as most useful in predicting affect ratio. Feature correlations with type-token ratio were similar to those with average response length, as shown in Table~\ref{feature-correlation}. That is, for example, poem type-token was positively correlated with both average response length and comment type-token ratio. We were able to predict type-token ratio with 17.0\% reduction in error over guessing the average.
@@ -254,13 +254,11 @@ Additionally, we attempted to predict the type-token ratio of the responses give
 Similarly, one might use the number of comments as a mark of aesthetic value. Increased number of comments could be seen as a mark of increased popularity, or of engendering more discussion. However, we were unable to predict this either.
 
 \section{Discussion and Error Analysis}
-In this paper, we drew upon earlier computational work in the analysis of poetry to develop a set of linguistic and poetic features which we then used in a series of classification tasks aimed at predicting the \emph{emotional} content of responses for a given poem. While predicting emotional word-association distributions proved to be a dead end, we achieved interesting results in predicting the magnitude of \emph{affect} words, type-token ratio, and emotional ``intensity'' %TODO : [did we do this?]
- of the words in the comments for a given poem.
+In this paper, we drew upon earlier computational work in the analysis of poetry to develop a set of linguistic and poetic features which we then used in a series of classification tasks aimed at predicting the \emph{emotional} content of responses for a given poem. While predicting emotional word-association distributions proved to be a dead end, we achieved interesting results in predicting the magnitude of \emph{affect} words, and type-token ratio.
 
-In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems tend to have %TODO : [significant features list].
+In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems (i.e. poems eliciting a higher affect ratio) tend to have strongly distinguished sentiment diction (more positive words, more words associated with ``joyíí,``trustíí, and ``anticipationíí), fewer concrete words, a lower type-token ratio.
 
-These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kao2012computational}. In their work, Kao and Jurafsky found that %%TODO [stat significant features etc]
- were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more \emph{emotive} poetry per our metrics is a finding that requires a further explanation.
+These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kaoandjurafsky2012}. In their work, Kao and Jurafsky found that concrete words and a higher type-token ratio were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more \emph{emotive}' poetry per our metrics is a finding that requires a further explanation.
 
 Looking by hand at the sets of responses which we found to have a high proportion of affect words, we notice a large contrast between commentary having high affect ratio and commentary having high affect ratio:
 
@@ -306,5 +304,7 @@ Do not number the acknowledgment section. Do not include this section when submi
 
 
 \end{document}
+
+
 
 
