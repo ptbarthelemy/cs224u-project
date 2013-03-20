@@ -21,7 +21,7 @@ def getWordsOf(filenames):
 if __name__ == "__main__":
 	positiveWords = set(getWordsOf(["../data/wordlists/LoughranMcDonald_Positive.csv"]).keys())
 	negativeWords = set(getWordsOf(["../data/wordlists/LoughranMcDonald_Negative.csv"]).keys())
-	wordsInPoems = getWordsOf(getFilesOf("../data/extracted_comments/"))
+	wordsInPoems = getWordsOf(getFilesOf("../data/comments_old/"))
 
 	count = 0
 	for word, freq in sorted(wordsInPoems.items(), key=lambda (x,y): -y):

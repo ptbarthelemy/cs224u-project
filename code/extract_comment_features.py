@@ -30,6 +30,7 @@ def removeStopwords(text):
 	return re.sub(stopwordRegex, "", text)
 
 def getWords(text):
+	text = ''.join(text).strip()
 	return re.findall("[\w']+", removeStopwords(text))
 
 def getCommentFilenames():
@@ -48,6 +49,7 @@ def getCommentsFromFile(filename, path, commentAsDocument):
 	f.close()
 
 	comments = re.findall(r"commenter:[\w ]+(.*)\|\|\|\s*likes", text)
+
 
 	if len(comments) < MIN_COMMENT_NUM:
 		return None
