@@ -8,8 +8,7 @@ from nltk import corpus
 from math import log
 from random import sample
 
-# MIN_COMMENT_NUM = 10
-MIN_COMMENT_NUM = 0
+MIN_COMMENT_NUM = 10
 COMMENT_DIR = "../data/comments_old/"
 AFFECT_RATIO_DICT = "affect_ratio.p"
 AFFECT_RATIO_PER_COMMENT_DICT = "affect_ratio2.p"
@@ -48,8 +47,7 @@ def getCommentsFromFile(filename, path, commentAsDocument):
 	text = cleanData(filename, f.read().lower())
 	f.close()
 
-	# comments = re.findall(r"commenter:[\w ]+\|\|\|   (.*)  \|\|\| likes", text)
-	comments = re.findall(r"commenter:.*\|\|\|  (.*)  \|\|\|\s*likes", text)
+	comments = re.findall(r"commenter:[\w ]+(.*)\|\|\|\s*likes", text)
 
 	if len(comments) < MIN_COMMENT_NUM:
 		return None
