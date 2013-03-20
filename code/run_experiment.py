@@ -203,6 +203,9 @@ def getCorrelation(poems, scores, feature):
     return pearsonr(x, y)
 
 def exp11():
+    """
+    Show correlation for each feature
+    """
     poems = getPoemModel().poems
     scores = {}
     scores['affect'] = getAffectRatios()
@@ -220,7 +223,7 @@ def exp11():
             else:
                 result[feature][k1] = (cor, p)
 
-    for k1 in sorted(result.keys(), key=lambda x:result[x]['rating'][1]): # sort by affect
+    for k1 in sorted(result.keys(), key=lambda x:result[x]['affect'][1]): # sort by affect
         print "\\\\", k1, "& %0.2f & %0.4f" % result[k1]['affect'], "& %0.2f & %0.4f" % result[k1]['typeToken'] \
             , "& %0.2f & %0.4f" % result[k1]['cLength'], "& %0.2f & %0.4f" % result[k1]['rating'] \
             , "& %0.2f & %0.4f" % result[k1]['numC']
@@ -251,12 +254,26 @@ def exp12():
 
     plt.savefig("../experiments/exp12.pdf", format="pdf")
 
+def exp13():
+    m = getPoemModel()
+    poems = m.poems
+    scores = getAffectRatios()  # plot average comment length
+    for name, poem in poems.items():
+        if scores.get(name, None) is None:
+            continue
+        if poem['proportionOfStops'] > 0.25 and scores[name] < 15:
+            print "bottom right", name
+        if poem['proportionOfStops'] < 0.12 and scores[name] > 25:
+            print "left, name", name, scores[name]
+
+
 if __name__ == "__main__":
 	# exp00() # affect ratio
     # exp03() # log of average comment length
     # exp081() # aspect ratio
     # exp04() # rating
     # exp06() # log of number of comments
-    # exp11()
+    # exp11() # table of correlations
     # exp07()
-    exp12()
+    # exp12()
+    exp13()
