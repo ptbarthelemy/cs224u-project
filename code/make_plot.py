@@ -28,14 +28,9 @@ def plotFeatureVsScore(poems, scores, feature):
 def makePlots(xDict, yDict, yname="score", filename="feature_scatter.pdf"):
     # xDict is a dict of dicts, the latter or which map feature to value
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
-    plt.figure(num=None, figsize=(18, 6), dpi=80, facecolor='w',
+    plt.figure(num=None, figsize=(24, 18), dpi=80, facecolor='w',
         edgecolor='k')
     for index, feature in enumerate(sorted(next(iter(xDict.values())).keys())):
-        if feature not in ['HGI-positiv', 'HGI-concrete', 'typeTokenRatio',
-            'NRC-joy', 'NRC-trust', 'perfectRhymeScore', 'NRC-anticipation',
-            'proportionOfStops']:
-            continue
-        print temp
         plt.subplot(4, 6, 1 + index)
         plotFeatureVsScore(xDict, yDict, feature)
 

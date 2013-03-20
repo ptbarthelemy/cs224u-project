@@ -17,7 +17,7 @@ from parse_realliwc import parseRealLIWC as liwc
 WORDS_FOR_ALLITERATION = 5
 # up to how many lines back are we looking for rhyme?
 LINES_FOR_RHYME = 2
-POEM_DIR = "../data/extracted_poems/"
+POEM_DIR = "../data/poems_old/"
 RHYME_DICT_PATH = "../data/rhyme-dict.txt"
 HGI_PATH = "../data/wordlists/harvard-general-inquirer-basic.csv"
 SAVED_MODEL = "poem_model.p"

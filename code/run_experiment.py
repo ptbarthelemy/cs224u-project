@@ -226,4 +226,10 @@ def exp11():
             , "& %0.2f & %0.4f" % result[k1]['numC']
 
 if __name__ == "__main__":
-	exp11()
+	# exp00() # affect ratio
+    # exp03() # log of average comment length
+    # exp081() # aspect ratio
+    # exp04() # rating
+    # exp06() # log of number of comments
+
+    exp11()

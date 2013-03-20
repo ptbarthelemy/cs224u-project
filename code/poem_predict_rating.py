@@ -13,7 +13,7 @@ from extract_comment_features import (getAffectRatios,
     getAverageAffectWordPerComment)
 
 USE_FEATURE_LIST = ['posWords', 'conWords', 'typeTokenRatio','numWordsPerLine','perfectRhymeScore','proportionOfStops','proportionOfLiquids','negWords']
-META_DIRECTORY = "../data/meta"
+META_DIRECTORY = "../data/meta_old"
 
 
 def getScore(text):
