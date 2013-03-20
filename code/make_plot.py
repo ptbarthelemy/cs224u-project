@@ -25,7 +25,7 @@ def plotFeatureVsScore(poems, scores, feature):
 
     print feature, " correlation: %0.3f pvalue: %0.3f" % (correl, pearP)
 
-def makePlots(xDict, yDict, yname="score", filename="feature_scatter.jpg"):
+def makePlots(xDict, yDict, yname="score", filename="feature_scatter.pdf"):
     # xDict is a dict of dicts, the latter or which map feature to value
     print "Plotting %d feature plots..." % len(next(iter(xDict.values())))
     plt.figure(num=None, figsize=(20, 12), dpi=80, facecolor='w',
@@ -35,7 +35,7 @@ def makePlots(xDict, yDict, yname="score", filename="feature_scatter.jpg"):
         plotFeatureVsScore(xDict, yDict, feature)
 
     plt.suptitle("features vs. %s" % yname, fontsize=20)
-    plt.savefig(filename, format="jpg")
+    plt.savefig(filename, format="pdf")
 
 def blowUpPlots(xDict, yDict):
     useFeatures = ['posWords', 'conWords', 'typeTokenRatio']
