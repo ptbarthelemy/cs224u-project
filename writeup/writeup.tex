@@ -136,22 +136,23 @@ Additionally, we try to categorize the magnitude of the affect response by count
 The goal of our experiments was to predict the comment features using the poetic features. During all experiments but the emotional distribution prediction, we use a linear regression model. Due to our relatively sparse data, we use 10 fold cross validation. A summary of our findings are provided in Table~\ref{experiment-summary}.
 \begin{table}['ht]
 \begin{center}
-\caption{Comment feature and our model's improvement over guessing the average. Performance is measured as the RSS of the error.}
 \label{experiment-summary}
 \vskip 0.12in
-\begin{tabular}{lr}
-\hline
+\begin{tabular}{l @{\hspace{25pt}} r}
+\toprule[.12em]\addlinespace
 Comment Feature  & Improvement
-\\ \hline
+\\ \addlinespace \midrule \addlinespace
 Affect ratio & 34.6\%
 \\ Type-token ratio & 17.0\%
 \\ Average comment length & 15.7\%
 \\ Poem score & 0.3\%
 \\ Number of responses & -0.3\%
-\\ \hline
+\\ \addlinespace\bottomrule[.12em]
 \end{tabular}
+\caption{Comment feature and our model's improvement over guessing the average. Performance is measured as the RSS of the error.}
 \end{center}
 \end{table}
+
 
 \subsection{Predicting Emotional Distributions}
 Our first pass at this task was to predict the distribution of emotional associations in a set of responses for a given poem. Therefore we extract poem-side features as described above, and define the label for a set of comments as the distribution of word-associations for each category in the NRC lexicon. We then use a MaxEnt classifier for classification, with the objective function set to minimize KL divergence between the classifier output and the training labels. 
@@ -164,7 +165,9 @@ At test time, then, performance would be based on the KL divergence of the predi
 \centerline{\includegraphics[scale=0.4]{../experiments/exp10.pdf}}
 \end{align*}
 \end{center}
+\vspace{-.6cm}
 \caption{A histogram of word distributions of the response for each poem. Here, each poem is represented by one line. The heavy overlap suggests that there is much similarity in the word distribution over comments.}
+\vspace{.5cm}
 \label{histogram}
 \end{figure*}
 
@@ -182,17 +185,17 @@ Next, we aim to characterize the magnitude of affect words in the user response.
 \label{affect-ratio-features}
 \end{figure*}
 
+
 \begin{table*}['ht]
-\tiny
+\scriptsize
 \begin{center}
-\caption{Features most strongly correlated with affect ratio.}
 \label{feature-correlation}
 \vskip 0.12in
-\begin{tabular}{l|cc|cc|cc|cc|cc}
-\hline
-&\multicolumn{2}{|c|}{Affect ratio}&\multicolumn{2}{|c|}{Type-token ratio}&\multicolumn{2}{|c|}{Avg. comment len.}&\multicolumn{2}{|c|}{Rating}&\multicolumn{2}{|c}{Num. comments}
-\\ feature & correl. & p & correl. & p & correl. & p & correl. & p & correl. & p
-\\\hline
+\begin{tabular}{l @{\hspace{15pt}} rr @{\hspace{20pt}} rr @{\hspace{20pt}} rr @{\hspace{20pt}} rr @{\hspace{20pt}} rr}
+\toprule[.12em]\addlinespace
+&\multicolumn{2}{c}{Affect ratio}&\multicolumn{2}{c}{Type-token ratio}&\multicolumn{2}{c}{Avg. comment len.}&\multicolumn{2}{c}{Rating}&\multicolumn{2}{c}{Num. comments}
+\\ Feature & correl. & p & correl. & p & correl. & p & correl. & p & correl. & p
+\\ \addlinespace \midrule \addlinespace
 NRC-joy & $0.51$ & $<0.0001$ & -$0.39$ & $<0.0001$ & -$0.34$ & $<0.0001$ & $0.06$ & $0.1883$ & -$0.07$ & 0.2583
 \\ HGI-positiv & $0.51$ & $<0.0001$ & -$0.35$ & $<0.0001$ & -$0.31$ & $<0.0001$ & $0.07$ & $0.1531$ & -$0.10$ & 0.1013
 \\ NRC-trust & $0.42$ & $<0.0001$ & -$0.25$ & $<0.0001$ & -$0.29$ & $<0.0001$ & -$0.02$ & $0.6105$ & -$0.11$ & 0.0578
@@ -201,8 +204,9 @@ NRC-joy & $0.51$ & $<0.0001$ & -$0.39$ & $<0.0001$ & -$0.34$ & $<0.0001$ & $0.06
 \\ NRC-anticipation & $0.22$ & $0.0002$ & -$0.09$ & $0.1223$ & -$0.15$ & $0.0109$ & -$0.01$ & $0.8357$ & -$0.08$ & 0.1523
 \\ perfect rhyme score & -$0.18$ & $0.0026$ & $0.16$ & $0.0075$ & $0.16$ & $0.0080$ & -$0.05$ & $0.3116$ & -$0.09$ & 0.1171
 \\ proportion of stops & -$0.16$ & $0.0050$ & $0.18$ & $0.0026$ & $0.18$ & $0.0021$ & $0.03$ & $0.4866$ & $0.11$ & 0.0594
-\\ \hline
+\\ \addlinespace\bottomrule[.12em]
 \end{tabular}
+\caption{Features most strongly correlated with affect ratio.}
 \end{center}
 \end{table*}
 
