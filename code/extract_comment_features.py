@@ -170,7 +170,8 @@ def getTopAffectRatioComments(printNum, burnIn):
 		comments = []
 		for filename, text in getCommentSets(True).items():
 			for comment in text:
-				comments.append((getAffectRatio(comment), comment, re.findall(makeRegexFromList(affectWordList), ' '.join(getWords(comment)))))
+				comments.append((getWordRatio(comment, affectWordList)
+					, comment, re.findall(makeRegexFromList(affectWordList), ' '.join(getWords(comment)))))
 		pickle.dump(comments, open(AFFECT_RATIO_PER_COMMENT_DICT, "w+"))
 
 	print "Sorting comments"

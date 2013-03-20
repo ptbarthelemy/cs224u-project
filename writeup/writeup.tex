@@ -65,19 +65,30 @@ Therefore we propose to collect a dataset of poems and a set of associated respo
 
 \section{Related Work}
 
+\newcite{tizhoosh2008poetic} compared five different strategies for computational classification of documents as poetry or non-poetry. To do so, they focus on three categories of features: shape, meter, and rhyme. These they define as “topographical” features of poetry, or features that can be examined simply by looking at the poem. They also mention other elements of poetry that are not used for classification in their work: sonic features (e.g. rhythm and meter), sensory (i.e. elements appealing to emotion), and ideational (e.g. grammar and syntax).
+
+Additionally, Tizhoosh et al. attempted to characterize the meaning of poetry. One can get a sense of the imagery of the poem by counting the number of nouns, verbs, adjectives, and adverbs in each phrase. Also, phrase repetition is more common to poetry than prose.
+
+Ultimately, when combining word frequencies and poetic features, they were able to identify poems with 97% accuracy. The authors point out that the word frequencies and poetic features tended to make different mistakes, so the combination of the two sets produced a robust algorithm. In particular, shape was the best indicator. Rhyme and meter added little, although it is hypothesized that it would be more useful in cases of short communication (e.g. emails, chat room comments) in which the shape is not strongly indicative.
 
 \newcite{kao2012computational} used computational methods to classify aesthetics of contemporary poetry. In particular, they analyzed diction, sound devices (rhyme, alliteration, and assonance), and imagery. As a proxy for a labeling poems as aesthetic or non-aesthetic, Kao and Jurafsky simply used the classes of professional versus amateur, which is expected to closely represent the former two categories with the advantage of having obvious labels.
 
-Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often ``intentionally ambiguous'', attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon ``strange'' words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary--``varied'' meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more ``strange'' words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
+Kao and Jurafsky hypothesized that diction would be important for classifying poetry. Poetic language is often ``intentionally ambiguous'', attempting to capture multiple meanings simultaneously. Additionally, it is more likely to include uncommon ``strange'' words for the purpose of being distinguished. For this latter point, it is hypothesized that poetry would include more words with lower word frequencies. It was also hypothesized that poetry would utilize more varied vocabulary---``varied'' meaning including more word types, and avoiding the repeat of words. However, results showed that professional poets did not use more ``strange'' words; words used by professional poets were not significantly more unusual from words used by amateur poets. On the other hand, poets did use more distinct word types.
 
 Additionally, it was observed that professional poets use more concrete words. Essentially, this could be viewed as a measure of imagery--imagery is conveyed through concrete details, and concrete details require non-abstract language. Similarly, professional poems were less likely to include psychological terms or positive/negative emotional terms, which further suggests that poets prefer to explain emotions via scenario description. In short, a professional poets follow the adage ``show, don’t tell.''
 
 Finally, with regard to form, professional poetry employs far fewer overt sound devices than does amateur poetry. So, though the findings of Tizhoosh et al. suggest that poetry is easily recognized by form, Kao and Jurafsky suggest that good poetry uses these cues far more sparingly. Further, though the perspective that the goal of poetry is to be distinguished (i.e. the poetry-as-deviance perspective) is weakened by the absence of strange words in poetry, it is revived in the observation that good contemporary poetry defies conventional poetic form.
 
+\newcite{brooke2012unsupervised} identified stylistic shifts within one poem, T.S. Eliot’s \emph{The Waste Land}, a poem which includes multiple interweaving voices, styles, and perspectives. Their goal was to use computational methods to identify points of a likely change in voice. To do this, they identified points at which there was a high degree of difference between the window of words before and after the proposed point of transition.
+
+Surface features included the number of syllables, punctuation and line break frequency, frequency of certain parts of speech (in particular nouns, verbs, adjectives, and adverbs) and pronouns, verb tense, type-token ratio, and a contextuality measure–a measure based on part-of-speech tags created by Heylighen and Dewaele (2002).
+
+Additionally, they used extrinsic features like sentiment polarity and extremity, formality, and proportion of words included in the Dale-Chall (1995) Readability list and the General Inquirer dictionary. In general, the extrinsic features performed slightly better than surface features, but both complemented each other in their evaluation against a gold-standard segmented version of the text. Combining these results with that of Tizhoosh et al. shows that, though form features best distinguish poetry from non-poetry, both form and semantic features best capture the variance in style.
+
 \section{Dataset}
 For this study, we extract features from the poem text and the comment text separately. That is, we frame the problem as a classification task where each poem acts as a training example from which we extract a set of linguistic and poetic features. Each poem is then associated with the set of free-text responses to that poem from which we extract data to act as the poem's ``response label.'' Various implementations [wrong word? fix] of these response labels are described later in the paper.
 
-\subsection*{Data Collection}
+\subsection{Data Collection}
 For a first pass at data collection, we ran a trial experiment on Amazon's Mechanical Turk service with five ten-line poems. We showed each poem to 20 Turkers and asked them to read and digest its contents. We then asked for them to provide a free-text response describing their personal, subjective emotional reaction to the poem. 
 
 However, upon manual review of the results, we found them to be of roughly similar quality to comments provided on the website \texttt{PoemHunter.com}, and therefore changed our approach for data collection to web-scraping, to allow both for a larger dataset and a more varied selection of poems. We treat the comments for a given poem as our free-text responses for the purposes of this study.
@@ -86,19 +97,19 @@ We began by scraping the ``Top 500 Poems'' section of the website, comprised of 
 
 Therefore, we scraped an additional 25,000 poems from the site by following links to poets in the ``Top 500 Poets'' list. Since the distribution of comments is very sparse and scraping is a time-consuming process, we scraped and only use poems from this set with over 10 comments in response; this requirement cut down this additional data source to only approximately [do exact number?] 500 new poems, each with more than 10 comments.
 
-\subsection*{Corpus Composition}
+\subsection{Corpus Composition}
 
 \section{Methodology}
 Our task is quite generally defined as the prediction of a human response to poetry. To this end, we use features to describe the poems and their resulting comments. We use latter to capture the human response, and we use the former to predict the latter.
 
-\subsection*{Poem Features}
+\subsection{Poem Features}
 % TODO: fix citations!
 Poetic features are in part taken from \newcite{kao2012computational}, where they were used to analyze the aesthetics of poetry, and \newcite{tizhoosh2008poetic} where they were used to classify text as poetry or non-poetry. We can divide them into three groups: orthography, sound device, and diction.
 
-\emph{Orthographic Features}
+\subsubsection{Orthographic Features}
 Orthographic features capture the \emph{shape} of the poems. We used the following features: number of lines, number of stanzas, number of lines per stanzas, number of words per line. When calculating the number of stanzas and number of lines, we use the log of the total value. Intuitively, this captures the notion that a difference in comment length of 10 and 15 is much larger than a difference in 50 and 55.
 
-\emph{Sound Device Features}
+\subsubsection{Sound Device Features}
 Uniquely prevalent in poetry, sound device is a strong descriptive feature for both identifying poetry \cite{tizhoosh2008poetic} and classifying profession versus amateur poetry \cite{kao2012computational}. We used the CMU pronunciation dictionary, which maps words to phonemes.
 
 In particular, we quantified perfect rhyme, slant rhyme, and alliteration. Perfect rhyme is defined as rhyme having the same ending vowel sound but differing consonant sound preceding it. Slant rhyme is defined as having the same ending consonant sound, but a different vowel sound preceding it. To simplify feature extraction, we avoid searching for particular rhyme schemes (e.g. aabb, abab), and simply check whether the ending word of a given sentence rhymes with the ending word of one of the previous two sentences. This ignores cases in which rhyme skips two lines, and would grossly underestimate the rhyming of, say, a Petrarchan Sonnet (abbaabbacdecde), though these rhyme schemes appear rarely.
@@ -110,24 +121,24 @@ We capture alliteration by counting the words within a fixed window having the s
 Additionally and unlike \newcite{kao2012computational} and \newcite{tizhoosh2008poetic}, we added features to quantify the proportion of nasals, fricatives, stops, and liquids. 
 % TODO: how do we justify this again?
 
-\emph{Diction}
+\subsubsection{Diction}
 Similar to \cite{kao2012computational}, we try to capture the use of positive/negative words and abstract/concrete words, which we drive from the Harvard General Inquirer wordlists. The positive (``positiv''), negative(``negativ''), and abstract (``abs@'', ``abs'') categories can be used as-is, however there is no category for concrete words. Thus, we construct one as the union of pre-existing categories that describe concrete items (``space'', ``object'', ``color'', ``place'').
 
 We also attempt to describe affect words and their intensities. To this end, we use the NRC dictionary coupling with sentiment scores collected from Amazon Mechanical Turk to determine the intensity of a given category. For the categories `anticipation’ and `surprise’, we compute 
 $$score_{\tt intensity} = 2 \times ( score_{\tt positive} - 0.5 )$$
 
-\subsection*{Comment Features}
-We focus on three ways of categorizing comment responses: popularity, orthoegraphy, and sentiment.
+\subsection{Comment Features}
+We focus on three ways of categorizing comment responses: popularity, orthography, and sentiment.
 
-\emph{Popularity}
+\subsubsection{Popularity}
 Attempt to capture the popularity of the poems by counting the total number of comments and using the poem score, which is on a 1-10 scale.
 
-\emph{Orthographic Features}
+\subsubsection{Orthographic Features}
 At first glance, there is a stark contrast between those comments that are thoughtful and lengthy and those comments that simply praise the poet in few words. Thus, we attempt to distinguish between these types of responses by counting the average response length (in words) and the type-token ratio. 
 
 We use the log of the average word length for similar reasons as mentioned in the poem feature section. This decision was further justified in that it was easier to predict than the actual average word length. As an additional technical note, we extract the type-token ratio for a particular poem's response by treating all comments as one document. Then, we sample 100 words from each response and calculate the type-token ratio for this. This offers a more principled way of comparing type-token ratios across differently sized documents.
 
-\emph{Sentiment Features}
+\subsubsection{Sentiment Features}
 It is predicted that human response will vary depending on the poems; some might elicit joy, others sadness. To this end, we attempt to measure the distribution and the magnitude of sentiment words. To measure the distribution of sentiment words, we use the NRC word-emotion association lexicon \cite{mohammad2010emotions} to associate given words with categories. For example, the word ``hug'' is associated with the ``trust'' category. In all, there are 10 categories: anger, anticipation, disgust, fear, joy, negative, positive, sadness, surprise, and trust.
 
 Additionally, we try to categorize the magnitude of the affect response by counting the frequency of affect words in a particular comment. We use the Linguistic Inquiry and Word Count (LIWC) dictionary\cite{pennebaker2001linguistic} to define affect words. To compare the number of affect words between two different sets of comments, we define the \emph{affect ratio} as the ratio of affect words divided by the total number of words.
@@ -226,11 +237,37 @@ Similarly, one might use the number of comments as a mark of aesthetic value. In
 \section{Discussion and Error Analysis}
 In this paper, we drew upon earlier computational work in the analysis of poetry to develop a set of linguistic and poetic features which we then used in a series of classification tasks aimed at predicting the ``emotional'' content of responses for a given poem. While predicting emotional word-association distributions proved to be a dead end, we achieved interesting results in predicting the magnitude of ``affect'' words, type-token ratio, and emotional ``intensity'' [did we do this?] of the words in the comments for a given poem.
 
-In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems tend to have … [significant features list].
+In particular, considering the features that proved to have a statistically significant impact in our prediction tasks, we found that more highly emotive poems (i.e. poems eliciting a higher affect ratio) tend to have strongly distinguished sentiment diction (more positive words, more words associated with ``joy’’,``trust’’, and ``anticipation’’), fewer concrete words, a lower type-token ratio.
 
-These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kaoandjurafsky2012}. In their work, Kao and Jurafsky found that [stat significant features etc] were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more ``emotive'' poetry per our metrics is a finding that requires a further explanation.
+These results were surprising to a certain extent, not in the least because at first glance they appear to contradict \newcite{kaoandjurafsky2012}. In their work, Kao and Jurafsky found that concrete words and a higher type-token ratio were indicators of poetry written by professionals, as compared with poetry written by amateurs. One might assume that professional poetry is far more likely to be effective at producing an emotive response, so to find that within our dataset of professional poetry opposite trends produced more ``emotive'' poetry per our metrics is a finding that requires a further explanation.
 
-Looking by hand at the sets of responses which we found to have a high proportion of affect words, 
+Looking by hand at the sets of responses which we found to have a high proportion of affect words, we notice a large contrast between commentary having high affect ratio and commentary having high affect ratio:
+
+\begin{itemize}
+\item \emph{what beautiful use of words. lovely poem.}
+\item \emph{you two are a couple of losers.}
+\end{itemize}
+
+contrasted with comments having low affect ratio:
+
+\begin{itemize}
+\item \emph{christ's life is plausible. however, consider the theme of ambition: what it is; whether it is neutral or with the power to possess good or evil; and its source. then think to how 'we people on the pavement' took to a person whose skeletons were not on public display.}
+\item \emph{this is poetic therapy at its very best. life-changing and liberating. i can't stop reading it...}
+\end{itemize}
+
+Indeed, the high aspect ratio comments tended to be very short ones, as shown in Figure~\ref{affect-ratio-length}. Further examination shows that affect ratio, log of average comment length, and comment type-token ratio are all strongly correlated with each other. We can offer an interpretation: some comments are very short and offer praise (or critique, as shown above) without explanations, and other comments are lengthy and detailed. 
+
+\begin{figure*}[ht]
+\begin{center}
+\begin{align*}
+\centerline{\includegraphics[scale=0.4]{../experiments/exp12.pdf}}
+\end{align*}
+\end{center}
+\caption{A collection of scatter plots showing the correlations of affect ratio, log average comment length, and comment type-token ratio.}
+\label{affect-ratio-length}
+\end{figure*}
+
+
 
 
 justification / explanation of phonetic features: 

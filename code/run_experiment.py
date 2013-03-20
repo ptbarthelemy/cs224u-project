@@ -6,8 +6,9 @@ from extract_comment_features import (getAffectRatios,
     getLogAverageCommentLength, getNumberOfComments,
     getTopAffectRatioComments, getCommentTypeTokenRatio,
     getNRCRatios)
-from make_plot import (makePlots, makeHistogram)
+from make_plot import (makePlots, makeHistogram, plotArrays)
 from scipy.stats.stats import pearsonr
+import matplotlib.pyplot as plt
 
 DEFAULT_FEATURE_LIST = ['HGI-positiv', 'HGI-concrete', 'typeTokenRatio',
     'NRC-joy', 'NRC-trust', 'perfectRhymeScore', 'NRC-anticipation',
@@ -40,7 +41,7 @@ def exp01():
     label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP    
     plt.scatter(x, y, label=label)
     plt.legend(loc=3)
-    plt.savefig("../experiments/exp01.pdf", format="jpg")
+    plt.savefig("../experiments/exp01.pdf", format="pdf")
 
 def exp011():
     """
@@ -49,12 +50,11 @@ def exp011():
     """
     x, y = zip(*getWordCountAffectCount(True))
     plt.ylabel("affect ratio")
-    plt.xlabel("comment length (# words)")
+    plt.xlabel("comment length (log number of words)")
     _, pearP = pearsonr(x, y)
-    label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP    
-    plt.scatter(x, y, label=label)
+    plt.scatter(x, y, lw=0)
     plt.legend(loc=3)
-    plt.savefig("../experiments/exp01.1.pdf", format="jpg")
+    plt.savefig("../experiments/exp011.pdf", format="pdf")
 
 def exp02():
     """
@@ -225,11 +225,39 @@ def exp11():
             , "& %0.2f & %0.4f" % result[k1]['cLength'], "& %0.2f & %0.4f" % result[k1]['rating'] \
             , "& %0.2f & %0.4f" % result[k1]['numC']
 
+def checkCorrelation(dict1, dict2, xlabel, ylabel):
+    x, y = [], []
+    for key in dict1:
+        if dict2.get(key, None) is None:
+            continue
+        x.append(dict1[key])
+        y.append(dict2[key])
+    return plotArrays(x, y, xlabel, ylabel)
+
+def exp12():
+    affect = getAffectRatios()
+    cLength = getLogAverageCommentLength()
+    typeToken = getCommentTypeTokenRatio(100)
+
+    plt.figure(num=None, figsize=(18, 6), dpi=80, facecolor='w',
+        edgecolor='k')
+
+    plt.subplot(1, 3, 1)
+    checkCorrelation(affect, cLength, "affect ratio", "average comment length")
+    plt.subplot(1, 3, 2)
+    checkCorrelation(affect, typeToken, "affect ratio", "type-token ratio")
+    plt.subplot(1, 3, 3)
+    checkCorrelation(cLength, typeToken, "average comment length", "type-token ratio")
+
+    plt.savefig("../experiments/exp12.pdf", format="pdf")
+
 if __name__ == "__main__":
 	# exp00() # affect ratio
     # exp03() # log of average comment length
     # exp081() # aspect ratio
     # exp04() # rating
     # exp06() # log of number of comments
+    # exp11()
 
-    exp11()
+    # exp07()
+    exp12()

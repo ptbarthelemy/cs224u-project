@@ -4,6 +4,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def plotArrays(x, y, xlabel="", ylabel=""):
+    correl, pearP = pearsonr(x, y)
+    A = np.vstack([x, np.ones(len(x))]).T
+    m, c = np.linalg.lstsq(A, np.array(y))[0]
+    plt.scatter(x, y, lw=0)
+    if len(xlabel) > 0: plt.xlabel(xlabel)
+    if len(ylabel) > 0: plt.ylabel(ylabel)
+    label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP
+    plt.plot(np.array(x), np.array(x) * m + c,color="red", label=label)
+    plt.legend(loc=3)
+    print xlabel, " correlation: %0.3f pvalue: %0.3f" % (correl, pearP)
+
 def plotFeatureVsScore(poems, scores, feature):
     x, y = [], []
     for key, value in poems.items():
@@ -11,19 +23,9 @@ def plotFeatureVsScore(poems, scores, feature):
             continue
         x.append(value.get(feature))
         y.append(scores.get(key))
-    correl, pearP = pearsonr(x, y)
 
     # least squares from:http://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.lstsq.html
-    A = np.vstack([x, np.ones(len(x))]).T
-    m, c = np.linalg.lstsq(A, np.array(y))[0]
-
-    plt.scatter(x, y, lw=0)
-    plt.xlabel(feature)
-    label = "p < 0.0001" if pearP < 0.0001 else "p = %0.4f"%pearP
-    plt.plot(np.array(x), np.array(x) * m + c,color="red", label=label)
-    plt.legend(loc=3)
-
-    print feature, " correlation: %0.3f pvalue: %0.3f" % (correl, pearP)
+    plotArrays(x, y, feature)
 
 def makePlots(xDict, yDict, yname="score", filename="feature_scatter.pdf"):
     # xDict is a dict of dicts, the latter or which map feature to value
